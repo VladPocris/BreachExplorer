@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasswordGenerator", "PasswordGenerator.csproj", "{185D0D64-B3BC-4E56-ABAA-EAFB35FC7A3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BreachExplorer", "BreachExplorer.csproj", "{FD687A23-E36A-4802-B8AE-692F71C82572}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{185D0D64-B3BC-4E56-ABAA-EAFB35FC7A3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{185D0D64-B3BC-4E56-ABAA-EAFB35FC7A3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{185D0D64-B3BC-4E56-ABAA-EAFB35FC7A3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{185D0D64-B3BC-4E56-ABAA-EAFB35FC7A3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD687A23-E36A-4802-B8AE-692F71C82572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD687A23-E36A-4802-B8AE-692F71C82572}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD687A23-E36A-4802-B8AE-692F71C82572}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD687A23-E36A-4802-B8AE-692F71C82572}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {66F7C059-EDD3-46C7-B297-27CCF886034F}
+		SolutionGuid = {06D969D8-E70B-4052-BCB4-1D98FB2F02AB}
 	EndGlobalSection
 EndGlobal

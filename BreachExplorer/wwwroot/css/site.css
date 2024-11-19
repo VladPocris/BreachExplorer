@@ -20,3 +20,7 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.custom-gray-bg {
+    background-color: rgb(44, 48, 53);
+}

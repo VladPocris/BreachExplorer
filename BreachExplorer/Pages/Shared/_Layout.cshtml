@@ -1,27 +1,26 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    @*Ctrl+K/Ctrl+F*@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PasswordGenerator</title>
+    <title>@ViewData["Title"] - BreachExplorer</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PasswordGenerator.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BreachExplorer.styles.css" asp-append-version="true" />
 </head>
 <body class="bg-dark">
     <nav class="bg-dark table-bordered">
         <div class="container bg-dark bg-gradient rounded-pill">
             <header class="d-flex flex-wrap justify-content-center py-3 mb-2">
                 <a href="/" class="d-flex align-items-center me-md-auto link-body-emphasis text-decoration-none">
-                    <object data="~/images/Password.svg" type="image/svg+xml" width="50" height="50" class="bi me-2"></object>
-                    <span class="fs-4 fw-bold text-light">RPGenerator</span>
+                    <svg class="bi me-2" width="50" height="50" role="img" aria-label="Logo">
+                        <use xlink:href="/images/SVGImages.svg#logo" />
+                    </svg>
+                    <span class="fs-4 fw-bold text-light">BreachExplorer</span>
                 </a>
                 <ul class="nav nav-pills align-items-center">
                     <li class="nav-item fw-bold fs-6"><a asp-page="/Index" class="nav-link active" aria-current="page">Home</a></li>
-                    <li class="nav-item fw-bold fs-6"><a asp-page="/QRCode" class="nav-link text-light">QRCode</a></li>
-                    <li class="nav-item fw-bold fs-6"><a asp-page="/NumberCheck" class="nav-link text-light">NumberCheck</a></li>
-                    <li class="nav-item fw-bold fs-6"><a asp-page="/About" class="nav-link text-light">About</a></li>
+                    <li class="nav-item fw-bold fs-6"><a asp-page="/QRCode" class="nav-link text-light">Was I Breached?</a></li>
                 </ul>
             </header>
         </div>
@@ -34,7 +33,7 @@
 
     <footer class="footer text-muted bg-dark bg-gradient">
         <div class="container text-light">
-            &copy; 2024 - PasswordGenerator - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2024 - BreachExplorer - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 

@@ -1,4 +1,4 @@
-namespace PasswordGenerator
+namespace BreachExplorer
 {
     public class Program
     {

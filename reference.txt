@@ -1,0 +1,46 @@
+Personalized Password Manager and Evaluator
+Build a web application that not only generates secure passwords using a Password Generator API but also helps users evaluate their existing passwords, store them securely, and provide breach notifications.
+
+Features
+Password Generator:
+
+Integrate an API like Random.org's String Generator or create a custom generator API.
+Let users specify preferences such as length, inclusion of special characters, numbers, uppercase/lowercase, and even pronounceability.
+Password Strength Evaluator:
+
+Use an open API like Have I Been Pwned to check if a generated or user-submitted password has been exposed in breaches.
+Provide strength metrics based on entropy calculations (length, complexity, dictionary words).
+Password Categories:
+
+Suggest passwords tailored for different scenarios:
+Social Media Accounts: Easy to remember yet secure.
+Financial Accounts: Extra-long and complex.
+Temporary Access: Expiry-based passwords.
+Secure Storage (Optional):
+
+Allow users to store and manage their passwords (encrypted using AES or similar).
+Provide folder-like categorization for organizing credentials.
+Two-Factor Authentication (2FA) Codes:
+
+Generate and store 2FA codes for websites, providing a complete secure authentication toolkit.
+Educational Section:
+
+Educate users on password security best practices.
+Include a "Password Hall of Shame" for commonly breached passwords.
+API Offering:
+
+Expose your password generation features as an API so other developers can integrate them into their own apps.
+Tech Stack
+Frontend:
+React, Next.js, or Vue.js for a responsive UI.
+Backend:
+Node.js or Python Flask/Django to handle password generation and strength evaluation.
+Database:
+MongoDB or PostgreSQL for storing encrypted user credentials (if storage is provided).
+APIs:
+Password Generator API.
+Have I Been Pwned API for breach checks.
+Optional: Cryptography libraries for in-house password generation/encryption.
+
+API: 7da32383a0534f2d90ea65c78a9627b8
+

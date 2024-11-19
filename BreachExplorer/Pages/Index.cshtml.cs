@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace PasswordGenerator.Pages
+namespace BreachExplorer.Pages
 {
     public class IndexModel : PageModel
     {
