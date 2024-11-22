@@ -1,4 +1,8 @@
 ﻿@page "/"
+@inject HttpClient Http
+
+@using System.Runtime.Serialization;
+@using System.Text.Json;
 
 <PageTitle>Home</PageTitle>
 <div style="text-align: center;">
@@ -8,16 +12,111 @@
 </div>
 
 <div class="container-fluid pb-3">
-    <div class="d-grid gap-3" style="grid-template-columns: 2fr 2fr;">
-        <div class="custom-gray-bg border border-secondary rounded-3">
-            <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
-                <a class="style-red-1 text-danger text-nowrap text-decoration-none fw-bold fs-4">Recent data breach</a>
-            </div>
-            <div>
-                test
+    <div class="row g-3">
+        <div class="col-lg-6 col-12">
+            <div class="custom-gray-bg border border-secondary rounded-3">
+                <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
+                    <a class="style-red-1 text-danger text-nowrap text-decoration-none fw-bold fs-4">Recent data breach</a>
+                </div>
+                <div class="d-grid">
+                    @if (success)
+                    {
+                        <div class="row">
+                            <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
+                                <img src="@data.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 120px; width: auto;" />
+                                @if (data.IsVerified)
+                                {
+                                    <svg version="1.1" baseProfile="basic" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
+                                        <use xlink:href="/images/Checkmark.svg#checkmark"></use>
+                                    </svg>
+                                    <a class="text-success fs-6 text-center">VERIFIED SOURCE</a>
+                                } else{
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" width="100px" height="100px">
+                                        <use xlink:href="/images/Cancel.svg#unverified"></use>
+                                                </svg>
+                                        <a class="text-danger fs-6 text-center">NOT-VERIFIED SOURCE</a>
+                                }
+                            </div>
+                            <div class="col-lg-8 col-12">
+                                <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@data.Name</a></div>
+                                <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@data.Domain</a></div>
+                                <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@data.BreachDate</a></div>
+                                <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@data.PwnCount</a></div>
+                                <div class="description text-center style-purple-1" style="margin-top: 10px;">
+                                    <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)data.Description)</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @errormessage
+                </div>
             </div>
         </div>
-        <div class="custom-gray-bg border border-secondary rounded-3 bg-image hover-zoom">
+
+        <div class="col-lg-6 col-12">
+            <div class="custom-gray-bg border border-secondary rounded-3 bg-image hover-zoom">
+                <div>
+                    test
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+@code {
+    private bool success;
+    private string errormessage;
+    private Root data;
+
+    private async Task GetBreachAsync()
+    {
+        try
+        {
+            //API V3
+            string uri = "https://haveibeenpwned.com/api/v3/latestbreach";
+            data = await Http.GetFromJsonAsync<Root>(uri);
+            success = true;
+            errormessage = String.Empty;
+        }
+        catch (Exception e)
+        {
+            success = false;
+            errormessage = e.Message;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBreachAsync();
+    }
+
+    public async void Lookup()
+    {
+        await GetBreachAsync();
+        StateHasChanged();
+    }
+
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+    public class Root
+    {
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public string Domain { get; set; }
+        public string BreachDate { get; set; }
+        public DateTime AddedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public int PwnCount { get; set; }
+        public string Description { get; set; }
+        public string LogoPath { get; set; }
+        public List<string> DataClasses { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsFabricated { get; set; }
+        public bool IsSensitive { get; set; }
+        public bool IsRetired { get; set; }
+        public bool IsSpamList { get; set; }
+        public bool IsMalware { get; set; }
+        public bool IsSubscriptionFree { get; set; }
+    }
+
+}
