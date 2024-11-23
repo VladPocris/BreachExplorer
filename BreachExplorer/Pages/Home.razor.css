@@ -1,5 +1,6 @@
 ﻿.custom-gray-bg {
     background-color: rgb(44, 48, 53);
+    width: 100%;
 }
 
 /*Typing animation*/
@@ -65,8 +66,89 @@
     color: blueviolet;
     letter-spacing: .1em;
     font-family: 'Segoe MDL2 Assets';
-    text-shadow: 0px 0px 7px red, 0px 0px 1px blueviolet;
+    text-shadow: 0px 0px 7px blueviolet, 0px 0px 1px #363636;
 }
+
+.style-blue-1 {
+    color: blue;
+    letter-spacing: .1em;
+    font-family: 'Segoe MDL2 Assets';
+    text-shadow: -2px -2px 7px blue, 2px 2px 1px #363636;
+}
+
+.style-green-1 {
+    color: blue;
+    letter-spacing: .1em;
+    font-family: 'Segoe MDL2 Assets';
+    text-shadow: -2px -2px 7px green, 2px 2px 1px #363636;
+}
+
+/*Tool-Tip slider*/
+.range-container {
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 30px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    visibility: visible;
+    transition: visibility 0s, opacity 0.5s linear;
+    opacity: 0;
+}
+
+
+.range-container:hover .tooltip {
+    opacity: 1;
+}
+
+/* Tool-Tip Copy */
+.tooltip-copy {
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    bottom: 40px;
+    position: absolute;
+    left: 90%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0s ease 0.5s;
+}
+
+    .tooltip-copy.tooltip-visible {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.5s ease, visibility 0s ease 0s;
+    }
+
+/*Password Input*/
+.input-container {
+    position: relative;
+}
+
+.copy-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    background-color: #218838;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+    .copy-btn:hover {
+        background-color: green;
+    }
 
 @media (max-width: 991.5px) {
     html {
@@ -74,7 +156,7 @@
     }
 
     .typing-text {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         word-wrap: break-word;
     }
 }

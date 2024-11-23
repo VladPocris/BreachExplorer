@@ -1,10 +1,12 @@
 ﻿@page "/"
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 @using System.Runtime.Serialization;
 @using System.Text.Json;
 
 <PageTitle>Home</PageTitle>
+
 <div style="text-align: center;">
     <h2 class="neon typing-container text-center fs-1 text-uppercase">
         <span class="typing-text">Make sure everyone arround you is safe! </span>
@@ -12,8 +14,9 @@
 </div>
 
 <div class="container-fluid pb-3">
-    <div class="row g-3">
-        <div class="col-lg-6 col-12">
+    <div class="row g-3" style="padding-bottom: 10%">
+
+        <div class="col-lg-6 col-12 d-flex justify-content-center">
             <div class="custom-gray-bg border border-secondary rounded-3">
                 <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
                     <a class="style-red-1 text-danger text-nowrap text-decoration-none fw-bold fs-4">Recent data breach</a>
@@ -23,18 +26,20 @@
                     {
                         <div class="row">
                             <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
-                                <img src="@data.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 120px; width: auto;" />
+                                <img src="@data.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
                                 @if (data.IsVerified)
                                 {
                                     <svg version="1.1" baseProfile="basic" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
-                                        <use xlink:href="/images/Checkmark.svg#checkmark"></use>
-                                    </svg>
+                                    <use xlink:href="/images/Checkmark.svg#checkmark"></use>
+                                                            </svg>
                                     <a class="text-success fs-6 text-center">VERIFIED SOURCE</a>
-                                } else{
+                                }
+                                else
+                                {
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" width="100px" height="100px">
                                         <use xlink:href="/images/Cancel.svg#unverified"></use>
-                                                </svg>
-                                        <a class="text-danger fs-6 text-center">NOT-VERIFIED SOURCE</a>
+                                    </svg>
+                                    <a class="text-danger fs-6 text-center">NON-VERIFIED SOURCE</a>
                                 }
                             </div>
                             <div class="col-lg-8 col-12">
@@ -53,31 +58,92 @@
             </div>
         </div>
 
-        <div class="col-lg-6 col-12">
+        <div class="col-lg-6 col-12 d-flex">
             <div class="custom-gray-bg border border-secondary rounded-3 bg-image hover-zoom">
-                <div>
-                    test
+                <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
+                    <a class="style-blue-1 text-primary text-nowrap text-decoration-none fw-bold fs-4">Considering changing your password?</a>
+                </div>
+                <div class="rounded border-4 border-dark border" style="margin: 10px;">
+                    <form class="bg-info bg-opacity-10 bg-gradient rounded-3 p-3">
+                        <div class="text-center mb-3">
+                            <div class="rounded d-flex justify-content-center">
+                                <a class="style-purple-1 text-opacity-75 text-white text-nowrap text-decoration-none fw-bold fs-4" style="margin-top: -10px;">Password generator.</a>
+                            </div>
+                            <label for="customRange3" class="form-label text-white">Length 0-64</label>
+                            <div class="range-container" style="position: relative;">
+                                <input type="range" id="customRange3" class="form-range" min="0" max="64" step="1"
+                                       @bind="@sliderValue" @oninput="UpdateTooltipValue" />
+                                <span class="tooltip" style="@tooltipStyle">@sliderValue</span>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline text-center">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1" @bind="@optionNumbers">
+                            <label class="form-check-label text-white" for="inlineCheckbox1">Include numbers (1,2,3,4,5...)</label>
+                        </div>
+                        <div class="form-check form-check-inline text-center">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2" @bind="@optionCharacters">
+                            <label class="form-check-label text-white" for="inlineCheckbox2">Include special characters (!.,/#'...)</label>
+                        </div>
+                        <div class="text-center mt-3">
+                            <div class="input-container position-relative">
+                                <input class="form-control mb-2" type="text" placeholder="Generate the password..." readonly @bind="@generatedPassword" id="passwordInput">
+                                <button class="btn copy-btn" type="button" @onclick="CopyTextToClipboard" style="@copyVisbility">
+                                    Copy
+                                </button>
+                                <div class="tooltip-copy @((showTooltip ? "tooltip-visible" : ""))">
+                                    Copied!
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" type="button" @onclick="UpdatePassword">Generate</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
-
 @code {
-    private bool success;
+    private int sliderValue = 16;
     private string errormessage;
+    private string tooltipStyle = $"left: 25%; visibility: visible;";
+    private string generatedPassword;
+    private string copyVisbility = "visibility: hidden";
     private Root data;
+    private Root password;
+    private bool success;
+    private bool optionNumbers;
+    private bool optionCharacters;
+    private bool showTooltip = false;
 
+    //LatestBreach HaveIBeenPwned API V3
     private async Task GetBreachAsync()
     {
         try
         {
-            //API V3
             string uri = "https://haveibeenpwned.com/api/v3/latestbreach";
             data = await Http.GetFromJsonAsync<Root>(uri);
             success = true;
             errormessage = String.Empty;
+        }
+        catch (Exception e)
+        {
+            success = false;
+            errormessage = e.Message;
+        }
+    }
+
+    //PasswordGenerator API-ninjas
+    private async Task GetPasswordAsync()
+    {
+        try
+        {
+            string uri = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + sliderValue + "&exclude_numbers=" + !optionNumbers + "&exclude_special_chars=" + !optionCharacters + "&x-api-key=begzyjsaHViKlIBMrIe5Cw==jySMQEZIfBStoL4n";
+            password = await Http.GetFromJsonAsync<Root>(uri);
+            success = true;
+            errormessage = String.Empty;
+            generatedPassword = password.random_password;
         }
         catch (Exception e)
         {
@@ -91,13 +157,13 @@
         await GetBreachAsync();
     }
 
-    public async void Lookup()
+    public async Task UpdatePassword()
     {
-        await GetBreachAsync();
+        await GetPasswordAsync();
+        copyVisbility = "visibility: visible;";
         StateHasChanged();
     }
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Root
     {
         public string Name { get; set; }
@@ -117,6 +183,29 @@
         public bool IsSpamList { get; set; }
         public bool IsMalware { get; set; }
         public bool IsSubscriptionFree { get; set; }
+        public string random_password { get; set; }
     }
 
+    //ToolTip for slider
+    private void UpdateTooltipValue(ChangeEventArgs e)
+    {
+        sliderValue = int.Parse(e.Value.ToString());
+        var rangeInput = 64;
+        var percentage = (sliderValue / (float)rangeInput) * 100;
+        tooltipStyle = $"left: calc({percentage}%); visibility: visible;";
+    }
+
+    //Copy-button to clipboard
+    private async Task CopyTextToClipboard()
+    {
+        if (!string.IsNullOrWhiteSpace(generatedPassword))
+        {
+            await JS.InvokeVoidAsync("copyToClipboard", generatedPassword);
+            showTooltip = true;
+            StateHasChanged();
+            await Task.Delay(4000);
+            showTooltip = false;
+            StateHasChanged();
+        }
+    }
 }

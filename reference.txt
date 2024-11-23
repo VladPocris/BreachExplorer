@@ -42,5 +42,5 @@ Password Generator API.
 Have I Been Pwned API for breach checks.
 Optional: Cryptography libraries for in-house password generation/encryption.
 
-API: 7da32383a0534f2d90ea65c78a9627b8
+API: begzyjsaHViKlIBMrIe5Cw==jySMQEZIfBStoL4n
 
