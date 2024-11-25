@@ -1,9 +1,4 @@
 ﻿@page "/"
-@inject HttpClient Http
-@inject IJSRuntime JS
-
-@using System.Runtime.Serialization;
-@using System.Text.Json;
 
 <PageTitle>Home</PageTitle>
 
@@ -26,8 +21,8 @@
                     {
                         <div class="row">
                             <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
-                                <img src="@data.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
-                                @if (data.IsVerified)
+                                <img src="@latestBreach.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
+                                @if (latestBreach.IsVerified)
                                 {
                                     <svg version="1.1" baseProfile="basic" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
                                     <use xlink:href="/images/Checkmark.svg#checkmark"></use>
@@ -43,12 +38,12 @@
                                 }
                             </div>
                             <div class="col-lg-8 col-12">
-                                <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@data.Name</a></div>
-                                <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@data.Domain</a></div>
-                                <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@data.BreachDate</a></div>
-                                <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@data.PwnCount</a></div>
+                                <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Name</a></div>
+                                <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Domain</a></div>
+                                <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.BreachDate</a></div>
+                                <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.PwnCount</a></div>
                                 <div class="description text-center style-purple-1" style="margin-top: 10px;">
-                                    <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)data.Description)</a>
+                                    <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)latestBreach.Description)</a>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +82,7 @@
                         <div class="text-center mt-3">
                             <div class="input-container position-relative">
                                 <input class="form-control mb-2" type="text" placeholder="Generate the password..." readonly @bind="@generatedPassword" id="passwordInput">
-                                <button class="btn copy-btn" type="button" @onclick="CopyTextToClipboard" style="@copyVisbility">
+                                <button class="btn copy-btn" type="button" @onclick="CopyTextToClipboard" style="visibility: @copyVisbility">
                                     Copy
                                 </button>
                                 <div class="tooltip-copy @((showTooltip ? "tooltip-visible" : ""))">
@@ -101,17 +96,35 @@
             </div>
         </div>
 
+        <div style="text-align: center;">
+            <h2 class="neon typing-container text-center fs-1 text-uppercase">
+                <span class="style-purple-2">Top Data Breaches. </span>
+            </h2>
+        </div>
+
+        <div class="container-fluid">
+            <BarChart @ref="barChart" style="display: inline-block; width: 50%; height: 300px;" />
+        </div>
+
+        <div class="mt-5 d-flex justify-content-center align-items-center">
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowHorizontalLineChartAsync()"> Horizontal Line Chart </Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowVerticalLineChartAsync()"> Vertical Line Chart </Button>
+        </div>
+
     </div>
 </div>
+
+
 
 @code {
     private int sliderValue = 16;
     private string errormessage;
     private string tooltipStyle = $"left: 25%; visibility: visible;";
     private string generatedPassword;
-    private string copyVisbility = "visibility: hidden";
-    private Root data;
-    private Root password;
+    private string copyVisbility = "hidden";
+    private Breach latestBreach;
+    private List<Breach> breachesList = new List<Breach>();
+    private Password password;
     private bool success;
     private bool optionNumbers;
     private bool optionCharacters;
@@ -123,7 +136,24 @@
         try
         {
             string uri = "https://haveibeenpwned.com/api/v3/latestbreach";
-            data = await Http.GetFromJsonAsync<Root>(uri);
+            latestBreach = await Http.GetFromJsonAsync<Breach>(uri);
+            success = true;
+            errormessage = String.Empty;
+        }
+        catch (Exception e)
+        {
+            success = false;
+            errormessage = e.Message;
+        }
+    }
+
+    //All Breaches HaveIBeenPwned API V3
+    private async Task GetBreachesAsync()
+    {
+        try
+        {
+            string uri = "https://haveibeenpwned.com/api/v3/breaches";
+            breachesList = await Http.GetFromJsonAsync<List<Breach>>(uri);
             success = true;
             errormessage = String.Empty;
         }
@@ -140,7 +170,7 @@
         try
         {
             string uri = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + sliderValue + "&exclude_numbers=" + !optionNumbers + "&exclude_special_chars=" + !optionCharacters + "&x-api-key=begzyjsaHViKlIBMrIe5Cw==jySMQEZIfBStoL4n";
-            password = await Http.GetFromJsonAsync<Root>(uri);
+            password = await Http.GetFromJsonAsync<Password>(uri);
             success = true;
             errormessage = String.Empty;
             generatedPassword = password.random_password;
@@ -155,16 +185,20 @@
     protected override async Task OnInitializedAsync()
     {
         await GetBreachAsync();
+        await Task.Delay(1900);
+        await GetBreachesAsync();
+        await InitializeChartData();
+        StateHasChanged();
     }
 
     public async Task UpdatePassword()
     {
         await GetPasswordAsync();
-        copyVisbility = "visibility: visible;";
+        copyVisbility = "visible;";
         StateHasChanged();
     }
 
-    public class Root
+    public class Breach
     {
         public string Name { get; set; }
         public string Title { get; set; }
@@ -183,6 +217,10 @@
         public bool IsSpamList { get; set; }
         public bool IsMalware { get; set; }
         public bool IsSubscriptionFree { get; set; }
+    }
+
+    public class Password
+    {
         public string random_password { get; set; }
     }
 
@@ -207,5 +245,95 @@
             showTooltip = false;
             StateHasChanged();
         }
+    }
+
+    //BarChart
+    private BarChart barChart = default!;
+    private BarChartOptions barChartOptions = default!;
+    private ChartData chartData = default!;
+
+    private List<string?> GetLabels()
+    {
+        var topBreaches = breachesList.OrderByDescending(b => b.PwnCount).Take(15).ToList();
+        return topBreaches.Select(b => b.Name).ToList();
+    }
+
+    private List<double?> GetData()
+    {
+        var topBreaches = breachesList.OrderByDescending(b => b.PwnCount).Take(15).ToList();
+        return topBreaches.Select(b => (double?)b.PwnCount).ToList();
+    }
+
+    private List<string> colorPalette = new List<string>
+        {
+            "#A40C0C",
+            "#9E0B15",
+            "#990A1E",
+            "#930927",
+            "#8E0931",
+            "#88083A",
+            "#830743",
+            "#7D064C",
+            "#770555",
+            "#72045E",
+            "#6C0367",
+            "#670371",
+            "#61027A",
+            "#5C0183",
+            "#56008C"
+        };
+
+    private async Task InitializeChartData()
+    {
+            chartData = new ChartData
+                {
+                    Labels = GetLabels(),
+                    Datasets = new List<IChartDataset>
+                {
+
+                    new BarChartDataset()
+                    {
+                        Label = "Data exposed: ",
+                        Data = GetData(),
+                        BackgroundColor = colorPalette,
+                        CategoryPercentage = 0.9,
+                        BarPercentage = 1,
+
+                    }
+                }
+                };
+
+            barChartOptions = new();
+
+            barChartOptions.Responsive = true;
+            barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "blueviolet" };
+            barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "blueviolet" };
+            barChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "white" };
+            barChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "red" };
+            barChartOptions.Plugins.Legend.Display = false;
+            barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+            barChartOptions.IndexAxis = "y";
+
+            await barChart.InitializeAsync(chartData, barChartOptions);
+    }
+
+    protected async Task ShowHorizontalLineChartAsync()
+    {
+        barChartOptions.IndexAxis = "y";
+        barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "blueviolet" };
+        barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "blueviolet" };
+        barChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "white" };
+        barChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "red" };
+        await barChart.UpdateAsync(chartData, barChartOptions);
+    }
+
+    protected async Task ShowVerticalLineChartAsync()
+    {
+        barChartOptions.IndexAxis = "x";
+        barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "blueviolet" };
+        barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "blueviolet" };
+        barChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "red" };
+        barChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "white" };
+        await barChart.UpdateAsync(chartData, barChartOptions);
     }
 }
