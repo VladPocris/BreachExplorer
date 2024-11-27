@@ -20,9 +20,20 @@
     color: blueviolet;
     font-size: 2.3rem;
     position: relative;
-    animation: typing 2s steps(37), blink 0.5s step-end infinite alternate;
+    width: 0px;
+    animation: typing 2s steps(37) forwards, blink 0.5s step-end infinite alternate;
     -webkit-box-reflect: below 1px linear-gradient(transparent, #3333);
 }
+
+/*LoadingSpinner*/
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+}
+
+    .loading-spinner img {
+        width: 50px;
+    }
 
 @keyframes blink {
     50% {
