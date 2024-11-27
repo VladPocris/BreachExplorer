@@ -2,72 +2,156 @@
 
 <PageTitle>Was I Breached?</PageTitle>
 
+<div class="d-flex justify-content-center align-items-center" style="width: 100%;">
+    <div class="border border-info rounded-3 bg-info bg-gradient bg-opacity-10 shadow-lg p-4"
+         style="display: inline-block; text-align: center; max-width: 90%;">
+        <a class="style-purple-2 text-nowrap text-decoration-none display-2" style="padding-bottom: 8px;">
+            Was I Breached?
+        </a>
+    </div>
+</div>
 
-    <div class="d-flex justify-content-center align-items-center" style="width: 100%;">
-        <div class="border border-info rounded-3 bg-info bg-gradient bg-opacity-10 shadow-lg p-4"
-        style="display: inline-block; text-align: center; max-width: 90%;">
-            <a class="style-purple-2 text-nowrap text-decoration-none display-2" style="padding-bottom: 8px;">
-                Was I Breached?
-            </a>
+<div class="d-flex justify-content-center" style="width: 100%;">
+    <a class="style-purple-1 text-opacity-75 text-white text-nowrap fw-bold fs-5">Check if your email address is in a data breach.</a>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="col-md-5 p-5">
+        <div class="input-group">
+            <input class="form-control" type="text" placeholder="Type your email..." @bind="@emailAddress">
+            <button class="btn btn-primary btn-lg" type="submit" id="searchPwnage" @onclick="GetBreachAsync">Breached?</button>
         </div>
     </div>
-
-    <div class="d-flex justify-content-center" style="width: 100%;">
-        <a class="style-purple-1 text-opacity-75 text-white text-nowrap fw-bold fs-5">Check if your email address is in a data breach.</a>
-    </div>
-
-    <div class="d-flex justify-content-center">
-        <div class="col-md-5 p-5">
-            <div class="input-group">
-                <input class="form-control" type="text" placeholder="Type your email..." @bind="@emailAddress">
-                <button class="btn btn-primary btn-lg" type="submit" id="searchPwnage">Breached?</button>
-            </div>
+</div>
+@if(breachesList.Count() > 0){
+<div class="bg-danger bg-gradient bg-opacity-25 m-5 rounded rounded-5 border-4 border-info border">
+    <div class="container">
+        <div class="row justify-content-center">
+                <div style="text-align: center;" class="bg-dark rounded-3 rounded-pill border-1 border-danger border">
+                    <h2 class="neon typing-container text-center fs-1">
+                        <span class="style-purple-2 text-danger">Oh no!</span>
+                    </h2>
+                    <span class="style-purple-2 text-danger">Your email has been found in @breachesList.Count() data breaches!!!</span>
+                </div>
+            @foreach (var latestBreach in breachesList)
+            {
+                <div class="col-lg-6 col-md-12 d-flex justify-content-center mb-4">
+                    <div class="custom-gray-bg border border-secondary rounded-3 w-100">
+                        <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
+                            <a class="style-red-1 text-danger text-nowrap text-decoration-none fw-bold fs-4">Data breach</a>
+                        </div>
+                        <div class="d-grid">
+                            <div class="row">
+                                <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
+                                    <img src="@latestBreach.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
+                                    @if (latestBreach.IsVerified)
+                                    {
+                                        <svg version="1.1" baseProfile="basic" id="check" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
+                                        <use xlink:href="/images/Checkmark.svg#checkmark"></use>
+                                                    </svg>
+                                        <a class="text-success fs-6 text-center">VERIFIED SOURCE</a>
+                                    }
+                                    else
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" width="100px" height="100px">
+                                            <use xlink:href="/images/Cancel.svg#unverified"></use>
+                                        </svg>
+                                        <a class="text-danger fs-6 text-center">NON-VERIFIED SOURCE</a>
+                                    }
+                                </div>
+                                <div class="col-lg-8 col-12">
+                                    <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Name</a></div>
+                                    <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Domain</a></div>
+                                    <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.BreachDate</a></div>
+                                    <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.PwnCount</a></div>
+                                    <div class="description text-center style-purple-1" style="margin-top: 10px;">
+                                        <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)latestBreach.Description)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
+    </div>
+}
+else if (breachesList.Count() <= 0 && buttonPressed == true)
+{
+    <div style="text-align: center;">
+        <h2 class="neon typing-container text-center fs-1">
+            <span class="style-purple-2 text-success">Congrats!!</span>
+        </h2>
+        <span class="style-purple-2 text-success">Your email has not been found in any data breaches!!!</span>
+    </div>
+}
 
 @code {
-    private string emailAddress;
-    private string errormessage;
-    private List<BreachName> breachNamesList = new List<BreachName>();
-    private List<Breach> breachesList = new List<Breach>();
-    private bool success = false;
+    private string errormessage = string.Empty;
+    private bool success = true;
 
-    //Breach Names for the email address specified HaveIBeenPwned API V3
-    // private async Task GetBreachNamesAsync()
-    // {
-    //     try
-    //     {
-    //         string encodedEmail = Uri.EscapeDataString(emailAddress);
-    //         string uri = $"https://haveibeenpwned.com/api/v3/breachedaccount/{encodedEmail}";
-    //         using (HttpClient client = new HttpClient())
-    //         {
-    //             client.DefaultRequestHeaders.Add("hibp-api-key", "189c24e9baf0438094b05ff14e22585d");
-    //             HttpResponseMessage response = await client.GetAsync(uri);
-    //             response.EnsureSuccessStatusCode();
-    //             breachesList = await response.Content.ReadFromJsonAsync<List<Breach>>();
-    //             success = true;
-    //             errormessage = String.Empty;
-    //         }
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         success = false;
-    //         errormessage = e.Message;
-    //     }
-    // }
+    // Breach Names for the email address specified HaveIBeenPwned API V3
+    private List<BreachName> breachNamesList;
+    private string emailAddress = string.Empty;
+
+    private async Task GetBreachNamesAsync()
+    {
+        try
+        {
+            string uri = "https://breachproxy.azurewebsites.net/api/breaches/breachedaccount/" + emailAddress;
+            breachNamesList = await Http.GetFromJsonAsync<List<BreachName>>(uri);
+            success = true;
+            errormessage = String.Empty;
+        }
+        catch (Exception e)
+        {
+            success = false;
+            errormessage = e.Message;
+        }
+    }
+
+    public class BreachName
+    {
+        public string? Name { get; set; }
+    }
+
+    //Retrieve breaches found HaveIBeenPwned API V3
+    private List<Breach> breachesList = new List<Breach>() { };
+    private bool buttonPressed = false;
+
+    private async Task GetBreachAsync()
+    {
+        try
+        {
+            await GetBreachNamesAsync();
+            buttonPressed = true;
+            breachesList = new List<Breach>() { };
+            foreach (var breach in breachNamesList)
+            {
+                string uri = $"https://haveibeenpwned.com/api/v3/breach/{breach.Name}";
+                breachesList.Add(await Http.GetFromJsonAsync<Breach>(uri));
+            }
+        }
+        catch (Exception e)
+        {
+            success = false;
+            errormessage = e.Message;
+        }
+    }
 
     public class Breach
     {
-        public string Name { get; set; }
-        public string Title { get; set; }
-        public string Domain { get; set; }
-        public string BreachDate { get; set; }
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Domain { get; set; }
+        public string? BreachDate { get; set; }
         public DateTime AddedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public int PwnCount { get; set; }
-        public string Description { get; set; }
-        public string LogoPath { get; set; }
-        public List<string> DataClasses { get; set; }
+        public string? Description { get; set; }
+        public string? LogoPath { get; set; }
+        public List<string>? DataClasses { get; set; }
         public bool IsVerified { get; set; }
         public bool IsFabricated { get; set; }
         public bool IsSensitive { get; set; }
@@ -75,10 +159,5 @@
         public bool IsSpamList { get; set; }
         public bool IsMalware { get; set; }
         public bool IsSubscriptionFree { get; set; }
-    }
-
-    public class BreachName
-    {
-        public string Name { get; set; }
     }
 }

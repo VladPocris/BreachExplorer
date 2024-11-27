@@ -87,7 +87,7 @@ else if (success)
                             <div class="text-center mt-3">
                                 <div class="input-container position-relative">
                                     <input class="form-control mb-2" type="text" placeholder="Generate the password..." readonly @bind="@generatedPassword" id="passwordInput">
-                                    <button class="btn copy-btn" type="button" @onclick="CopyTextToClipboard" style="visibility: @copyVisbility">
+                                    <button class="btn copy-btn" type="button" @onclick="CopyTextToClipboard" style="visibility: @copyVisibility">
                                         Copy
                                     </button>
                                     <div class="tooltip-copy @((showTooltip ? "tooltip-visible" : ""))">
@@ -151,23 +151,23 @@ else
 
 
 @code {
-    private int sliderValue = 16;
-    private string errormessage;
-    private string tooltipStyle = $"left: 25%; visibility: visible;";
-    private string generatedPassword;
-    private string copyVisbility = "hidden";
-    private string companyName;
-    private Breach latestBreach;
-    private List<Breach> breachesList = new List<Breach>();
-    private List<string> colorPalette = new List<string> { "#A40C0C", "#9E0B15", "#990A1E", "#930927", "#8E0931", "#88083A", "#830743", "#7D064C", "#770555", "#72045E", "#6C0367", "#670371", "#61027A", "#5C0183", "#56008C" };
-    private Password password;
-    [Inject] protected ToastService ToastService { get; set; } = default!;
     private bool success;
-    private bool optionNumbers;
-    private bool optionCharacters;
-    private bool showTooltip = false;
+    private string? errormessage;
+    private List<string> colorPalette = new List<string> { "#A40C0C", "#9E0B15", "#990A1E", "#930927", "#8E0931", "#88083A", "#830743", "#7D064C", "#770555", "#72045E", "#6C0367", "#670371", "#61027A", "#5C0183", "#56008C" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBreachAsync();
+        await GetBreachesAsync();
+        StateHasChanged();
+        await InitializeChartDataTop();
+        await InitializeChartDataCompare();
+    }
 
     //LatestBreach HaveIBeenPwned API V3
+    private Breach latestBreach;
+    private List<Breach> breachesList = new List<Breach>() { };
+
     private async Task GetBreachAsync()
     {
         try
@@ -201,7 +201,34 @@ else
         }
     }
 
+    public class Breach
+    {
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Domain { get; set; }
+        public string? BreachDate { get; set; }
+        public DateTime AddedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public int PwnCount { get; set; }
+        public string? Description { get; set; }
+        public string? LogoPath { get; set; }
+        public List<string>? DataClasses { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsFabricated { get; set; }
+        public bool IsSensitive { get; set; }
+        public bool IsRetired { get; set; }
+        public bool IsSpamList { get; set; }
+        public bool IsMalware { get; set; }
+        public bool IsSubscriptionFree { get; set; }
+    }
+
     //PasswordGenerator API-ninjas
+    private Password? password;
+    private string? generatedPassword;
+    private string copyVisibility = "hidden";
+    private bool optionNumbers;
+    private bool optionCharacters;
+
     private async Task GetPasswordAsync()
     {
         try
@@ -219,49 +246,23 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    public class Password
     {
-            await GetBreachAsync();
-            await GetBreachesAsync();
-            StateHasChanged();
-            await InitializeChartDataTop();
-            await InitializeChartDataCompare();
+        public string? random_password { get; set; }
     }
 
     public async Task UpdatePassword()
     {
         await GetPasswordAsync();
-        copyVisbility = "visible;";
+        copyVisibility = "visible;";
         StateHasChanged();
     }
 
-    public class Breach
-    {
-        public string Name { get; set; }
-        public string Title { get; set; }
-        public string Domain { get; set; }
-        public string BreachDate { get; set; }
-        public DateTime AddedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public int PwnCount { get; set; }
-        public string Description { get; set; }
-        public string LogoPath { get; set; }
-        public List<string> DataClasses { get; set; }
-        public bool IsVerified { get; set; }
-        public bool IsFabricated { get; set; }
-        public bool IsSensitive { get; set; }
-        public bool IsRetired { get; set; }
-        public bool IsSpamList { get; set; }
-        public bool IsMalware { get; set; }
-        public bool IsSubscriptionFree { get; set; }
-    }
-
-    public class Password
-    {
-        public string random_password { get; set; }
-    }
-
     //ToolTip for slider
+    private int sliderValue = 16;
+    private bool showTooltip = false;
+    private string tooltipStyle = $"left: 25%; visibility: visible;";
+
     private void UpdateTooltipValue(ChangeEventArgs e)
     {
         sliderValue = int.Parse(e.Value.ToString());
@@ -356,10 +357,12 @@ else
     }
 
     //BarChartCompare
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    private string? companyName;
     private BarChart barChartCompare = default!;
     private BarChartOptions barChartOptionsCompare = default!;
     private ChartData chartDataCompare = default!;
-    private List<Breach> breachData = new List<Breach>();
+    private List<Breach>? breachData = new List<Breach>();
 
     private List<string?> GetLabelsCompare(List<Breach> data)
     {
@@ -427,11 +430,11 @@ else
         }
         catch (Exception e)
         {
-            ToastService.Notify(new(ToastType.Danger, "Unexpected error."));
+            ToastService.Notify(new(ToastType.Danger, e.Message));
         }
     }
 
-    protected async Task RemoveBarChartCompareAsync(string querry)
+    protected async Task RemoveBarChartCompareAsync(string? querry)
     {
         if (string.IsNullOrWhiteSpace(companyName))
         {
