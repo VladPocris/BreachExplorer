@@ -1,6 +1,6 @@
 # BreachExplorer
 
-BreachExplorer is a small Blazor WebAssembly app that lets you **see the biggest data‑breaches in one glance and check if your own e‑mail address has been pwned**. It pulls breach data from *Have I Been Pwned?* and serves it through a tiny Azure Functions proxy (to dodge CORS), then renders interactive charts right in the browser.
+BreachExplorer is a small Blazor WebAssembly app that lets you **see the biggest data‑breaches in one glance and check if your own e‑mail address has been pwned**. It pulls breach data from *Have I Been Pwned?* and serves it through a tiny ASP.NET Core Web API proxy (to dodge CORS), then renders interactive charts right in the browser.
 
 **Live demo:** https://gcstorageacc2.z9.web.core.windows.net/  
 **Source:** https://github.com/VladPocris/BreachExplorer
