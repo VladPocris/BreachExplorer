@@ -71,7 +71,7 @@ else if (success)
                                 </div>
                                 <label for="customRange3" class="form-label text-white">Length 0-64</label>
                                 <div class="range-container" style="position: relative;">
-                                    <input type="range" id="customRange3" class="form-range" min="0" max="64" step="1"
+                                    <input type="range" id="customRange3" class="form-range" min="1" max="64" step="1"
                                            @bind="@sliderValue" @oninput="UpdateTooltipValue" />
                                     <span class="tooltip" style="@tooltipStyle">@sliderValue</span>
                                 </div>
@@ -231,18 +231,53 @@ else
 
     private async Task GetPasswordAsync()
     {
+        // 1️⃣ build URI exactly as before
+        string uri =
+            "https://api.api-ninjas.com/v1/passwordgenerator?length="
+            + sliderValue
+            + "&exclude_numbers=" + !optionNumbers
+            + "&exclude_special_chars=" + !optionCharacters
+            + "&x-api-key=begzyjsaHViKlIBMrIe5Cw==jySMQEZIfBStoL4n";
+
         try
         {
-            string uri = "https://api.api-ninjas.com/v1/passwordgenerator?length=" + sliderValue + "&exclude_numbers=" + !optionNumbers + "&exclude_special_chars=" + !optionCharacters + "&x-api-key=begzyjsaHViKlIBMrIe5Cw==jySMQEZIfBStoL4n";
-            password = await Http.GetFromJsonAsync<Password>(uri);
-            success = true;
+            var response = await Http.GetAsync(uri);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string msg;
+                try
+                {
+                    using var doc = JsonDocument.Parse(body);
+                    msg = doc.RootElement.GetProperty("error").GetString() ?? body;
+                }
+                catch
+                {
+                    msg = body;
+                }
+
+                errormessage = msg;
+
+                ToastService.Notify(new(
+                  ToastType.Warning,
+                  msg
+                ));
+
+                return;
+            }
+
+            password = JsonSerializer.Deserialize<Password>(body);
             errormessage = String.Empty;
-            generatedPassword = password.random_password;
+            generatedPassword = password!.random_password;
+            copyVisibility = "visible;";
         }
         catch (Exception e)
         {
-            success = false;
-            errormessage = e.Message;
+            ToastService.Notify(new(
+            ToastType.Danger,
+            $"Error generating password: {e.Message}"
+            ));
         }
     }
 
@@ -254,7 +289,6 @@ else
     public async Task UpdatePassword()
     {
         await GetPasswordAsync();
-        copyVisibility = "visible;";
         StateHasChanged();
     }
 
@@ -305,9 +339,9 @@ else
     private async Task InitializeChartDataTop()
     {
         chartDataTop = new ChartData
-            {
-                Labels = GetLabelsTop(),
-                Datasets = new List<IChartDataset>
+        {
+            Labels = GetLabelsTop(),
+            Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -320,7 +354,7 @@ else
 
                     }
                 }
-            };
+        };
 
         barChartOptionsTop = new();
 
@@ -407,9 +441,9 @@ else
                         }
 
                         chartDataCompare = new ChartData
-                            {
-                                Labels = GetLabelsCompare(breachData),
-                                Datasets = new List<IChartDataset>
+                        {
+                            Labels = GetLabelsCompare(breachData),
+                            Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -422,7 +456,7 @@ else
 
                     }
                 }
-                            };
+                        };
                         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
                     }
                 }
@@ -453,9 +487,9 @@ else
                 breachData.Remove(temp[0]);
 
                 chartDataCompare = new ChartData
-                    {
-                        Labels = GetLabelsCompare(breachData),
-                        Datasets = new List<IChartDataset>
+                {
+                    Labels = GetLabelsCompare(breachData),
+                    Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -468,7 +502,7 @@ else
 
                     }
                 }
-                    };
+                };
                 await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
             }
         }
@@ -478,9 +512,9 @@ else
     {
         breachData = new List<Breach>();
         chartDataCompare = new ChartData
-            {
-                Labels = { },
-                Datasets = new List<IChartDataset>
+        {
+            Labels = { },
+            Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -493,7 +527,7 @@ else
 
                     }
                 }
-            };
+        };
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
     }
 
@@ -503,9 +537,9 @@ else
         breachData = breachesList.Where(breach => breach.PwnCount > 5000000).OrderBy(b => random.Next()).Take(15).ToList();
 
         chartDataCompare = new ChartData
-            {
-                Labels = GetLabelsCompare(breachData),
-                Datasets = new List<IChartDataset>
+        {
+            Labels = GetLabelsCompare(breachData),
+            Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -518,16 +552,16 @@ else
 
                     }
                 }
-            };
+        };
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
     }
 
     private async Task InitializeChartDataCompare()
     {
         chartDataCompare = new ChartData
-            {
-                Labels = { },
-                Datasets = new List<IChartDataset>
+        {
+            Labels = { },
+            Datasets = new List<IChartDataset>
                 {
 
                     new BarChartDataset()
@@ -540,7 +574,7 @@ else
 
                     }
                 }
-            };
+        };
 
         barChartOptionsCompare = new();
 

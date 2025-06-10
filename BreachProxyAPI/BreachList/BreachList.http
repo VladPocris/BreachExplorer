@@ -1,0 +1,6 @@
+@BreachList_HostAddress = http://localhost:5194
+
+GET {{BreachList_HostAddress}}/breach/
+Accept: application/json
+
+###
