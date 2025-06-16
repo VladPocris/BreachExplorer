@@ -169,7 +169,7 @@ else if (breachesList.Count() <= 0 && buttonPressed)
         catch (HttpRequestException)
         {
             success = false;
-            errormessage = "Unable to reach the breach-proxy API. Please check your connection or try again later.";
+            errormessage = "Unable to reach the breach-proxy API or API subscription no longer valid.";
         }
         catch (Exception)
         {
