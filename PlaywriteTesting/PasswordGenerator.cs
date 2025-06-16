@@ -8,7 +8,7 @@ namespace PlaywriteTesting
         [TestMethod]
         public async Task PasswordGeneratorIsFunctional()
         {
-            await Page.GotoAsync("https://gcstorageacc2.z9.web.core.windows.net/");
+            await Page.GotoAsync("http://localhost:5241/");
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
             //Test Slider Value Change And Tooltip

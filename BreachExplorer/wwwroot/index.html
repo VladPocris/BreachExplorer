@@ -41,6 +41,30 @@
     <!-- Add sortable.js reference if SortableList component is used in your application. -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.bootstrap && bootstrap.Dropdown) {
+                const origPopperConfig = bootstrap.Dropdown.Default.popperConfig;
+
+                bootstrap.Dropdown.Default.popperConfig = function (defaultBsPopperConfig) {
+                    const cfg = typeof origPopperConfig === 'function'
+                        ? origPopperConfig(defaultBsPopperConfig)
+                        : { ...origPopperConfig };
+
+                    cfg.placement = 'top-start';
+
+                    cfg.modifiers = (cfg.modifiers || []).map(mod => {
+                        if (mod.name === 'flip') {
+                            return { name: 'flip', options: { fallbackPlacements: [] } };
+                        }
+                        return mod;
+                    });
+
+                    return cfg;
+                };
+            }
+        });
+    </script>
 </body>
 
 </html>

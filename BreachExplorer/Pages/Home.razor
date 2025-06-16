@@ -5,7 +5,7 @@
 @if (!success)
 {
     <div id="loadingIndicator" class="justify-content-center d-flex">
-        <img src="/images/Loading.gif" alt="Loading..." height="300" width="300"/>
+        <img src="/images/Loading.gif" alt="Loading..." height="300" width="300" />
         <p>Loading...</p>
     </div>
 }
@@ -26,42 +26,42 @@ else if (success)
                         <a class="style-red-1 text-danger text-nowrap text-decoration-none fw-bold fs-4">Recent data breach</a>
                     </div>
                     <div class="d-grid">
-                            <div class="row">
-                                <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
-                                    <img src="@latestBreach.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
-                                    @if (latestBreach.IsVerified)
-                                    {
-                                        <svg version="1.1" baseProfile="basic" id="check" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
-                                        <use xlink:href="/images/Checkmark.svg#checkmark"></use>
+                        <div class="row">
+                            <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
+                                <img src="@latestBreach.LogoPath" class="img-fluid" style="max-height: 120px; max-width: 100px; width: auto;" />
+                                @if (latestBreach.IsVerified)
+                                {
+                                    <svg version="1.1" baseProfile="basic" id="check" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" xml:space="preserve" width="100px" height="100px" class="mt-2">
+                                    <use xlink:href="/images/Checkmark.svg#checkmark"></use>
                                                                                 </svg>
-                                        <a class="text-success fs-6 text-center">VERIFIED SOURCE</a>
-                                    }
-                                    else
-                                    {
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" width="100px" height="100px">
-                                            <use xlink:href="/images/Cancel.svg#unverified"></use>
-                                        </svg>
-                                        <a class="text-danger fs-6 text-center">NON-VERIFIED SOURCE</a>
-                                    }
-                                </div>
-                                <div class="col-lg-8 col-12">
-                                    <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Name</a></div>
-                                    <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Domain</a></div>
-                                    <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.BreachDate</a></div>
-                                    <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.PwnCount</a></div>
-                                    <div class="description text-center style-purple-1" style="margin-top: 10px;">
-                                        <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)latestBreach.Description)</a>
-                                    </div>
+                                    <a class="text-success fs-6 text-center">VERIFIED SOURCE</a>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" width="100px" height="100px">
+                                        <use xlink:href="/images/Cancel.svg#unverified"></use>
+                                    </svg>
+                                    <a class="text-danger fs-6 text-center">NON-VERIFIED SOURCE</a>
+                                }
+                            </div>
+                            <div class="col-lg-8 col-12">
+                                <div class="style-purple-1">Name: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Name</a></div>
+                                <div class="style-purple-1">Domain: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.Domain</a></div>
+                                <div class="style-purple-1">Date: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.BreachDate</a></div>
+                                <div class="style-purple-1">Data exposed: <a class="style-purple-1 text-decoration-none" style="color: white">@latestBreach.PwnCount</a></div>
+                                <div class="description text-center style-purple-1" style="margin-top: 10px;">
+                                    <a class="style-purple-1 text-decoration-none" style="color: white;">@((MarkupString)latestBreach.Description)</a>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-6 col-12 d-flex">
                 <div class="custom-gray-bg border border-secondary rounded-3 bg-image hover-zoom">
-                    <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center">
-                        <a class="style-blue-1 text-primary text-nowrap text-decoration-none fw-bold fs-4">Considering changing your password?</a>
+                    <div class="rounded bg-danger bg-gradient bg-opacity-10 d-flex justify-content-center text-center">
+                        <a class="style-blue-1 text-primary text-decoration-none fw-bold fs-4">Considering changing your password?</a>
                     </div>
                     <div class="rounded border-4 border-dark border" style="margin: 10px;">
                         <form class="bg-info bg-opacity-10 bg-gradient rounded-3 p-3">
@@ -122,21 +122,65 @@ else if (success)
                 </h2>
             </div>
 
-                <div class="container-fluid">
-                    <BarChart @ref="barChartCompare" style="display: inline-block; width: auto; height: 300px; max-height: 600px; max-width: auto" />
-                </div>
-
-                <div class="mt-5 d-flex justify-content-center align-items-center">
-                    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowHorizontalBarChartCompareAsync()"> Horizontal Bar Chart </Button>
-                <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowVerticalBarChartCompareAsync()"> Vertical Bar Chart </Button>
+            <div class="container-fluid">
+                <BarChart @ref="barChartCompare" style="display: inline-block; width: auto; height: 300px; max-height: 600px; max-width: auto" />
             </div>
 
             <div class="mt-5 d-flex justify-content-center align-items-center">
-                <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await CleanChartDataCompare()"> Clean chart </Button>
-                <Button Type="ButtonType.Button" Color="ButtonColor.Success" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await RandomChartDataCompare()"> Add random companies </Button>
-                <AutoComplete @bind-Value="@companyName" Class="my-1 mx-1" TItem="Breach" DataProvider="BreachesDataProvider" PropertyName="Name" Placeholder="Search for a company..." Size="AutoCompleteSize.Small" />
-                <Button Type="ButtonType.Button" Color="ButtonColor.Success" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await AddBarChartCompareAsync(companyName)"> Add company </Button>
-                <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await RemoveBarChartCompareAsync(companyName)"> Remove company </Button>
+                <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowHorizontalBarChartCompareAsync()"> Horizontal Bar Chart </Button>
+                <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" Class="my-1 mx-1" @onclick="async () => await ShowVerticalBarChartCompareAsync()"> Vertical Bar Chart </Button>
+            </div>
+
+            <div class="mt-5 row justify-content-center g-2">
+                <div class="col-6 col-sm-4 col-md-auto">
+                    <Button Type="ButtonType.Button"
+                            Color="ButtonColor.Danger"
+                            Size="ButtonSize.Small"
+                            Class="w-100"
+                            @onclick="async () => await CleanChartDataCompare()">
+                        Clean chart
+                    </Button>
+                </div>
+
+                <div class="col-6 col-sm-4 col-md-auto">
+                    <Button Type="ButtonType.Button"
+                            Color="ButtonColor.Success"
+                            Size="ButtonSize.Small"
+                            Class="w-100"
+                            @onclick="async () => await RandomChartDataCompare()">
+                        Add random companies
+                    </Button>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-4">
+                    <AutoComplete @bind-Value="@companyName"
+                                  Class="w-100"
+                                  TItem="Breach"
+                                  DataProvider="BreachesDataProvider"
+                                  PropertyName="Name"
+                                  Placeholder="Search for a company..."
+                                  Size="AutoCompleteSize.Small" />
+                </div>
+
+                <div class="col-6 col-sm-4 col-md-auto">
+                    <Button Type="ButtonType.Button"
+                            Color="ButtonColor.Success"
+                            Size="ButtonSize.Small"
+                            Class="w-100"
+                            @onclick="async () => await AddBarChartCompareAsync(companyName)">
+                        Add company
+                    </Button>
+                </div>
+
+                <div class="col-6 col-sm-4 col-md-auto">
+                    <Button Type="ButtonType.Button"
+                            Color="ButtonColor.Danger"
+                            Size="ButtonSize.Small"
+                            Class="w-100"
+                            @onclick="async () => await RemoveBarChartCompareAsync(companyName)">
+                        Remove company
+                    </Button>
+                </div>
             </div>
 
         </div>
@@ -226,8 +270,8 @@ else
     private Password? password;
     private string? generatedPassword;
     private string copyVisibility = "hidden";
-    private bool optionNumbers;
-    private bool optionCharacters;
+    private bool optionNumbers = true;
+    private bool optionCharacters = true;
 
     private async Task GetPasswordAsync()
     {
@@ -342,7 +386,7 @@ else
         {
             Labels = GetLabelsTop(),
             Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {
@@ -444,7 +488,7 @@ else
                         {
                             Labels = GetLabelsCompare(breachData),
                             Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {
@@ -490,7 +534,7 @@ else
                 {
                     Labels = GetLabelsCompare(breachData),
                     Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {
@@ -515,7 +559,7 @@ else
         {
             Labels = { },
             Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {
@@ -540,7 +584,7 @@ else
         {
             Labels = GetLabelsCompare(breachData),
             Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {
@@ -562,7 +606,7 @@ else
         {
             Labels = { },
             Datasets = new List<IChartDataset>
-                {
+            {
 
                     new BarChartDataset()
                     {

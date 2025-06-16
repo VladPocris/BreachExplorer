@@ -18,10 +18,10 @@
     margin-bottom: 0px;
     padding-right: 0.2ch;
     color: blueviolet;
-    font-size: 2.3rem;
+    font-size: clamp(1rem, 4vw, 2.3rem);
     position: relative;
-    width: 0px;
-    animation: typing 2s steps(37) forwards, blink 0.5s step-end infinite alternate;
+    width: 0ch;
+    animation: typing 2s steps(38) forwards, blink 0.5s step-end infinite alternate;
     -webkit-box-reflect: below 1px linear-gradient(transparent, #3333);
 }
 
@@ -42,13 +42,8 @@
 }
 
 @keyframes typing {
-
-    0% {
-        width: 0ch;
-    }
-
-    100% {
-        width: 37ch;
+    to {
+        width: 100%;
     }
 }
 
@@ -173,7 +168,7 @@
         background-color: green;
     }
 
-@media (max-width: 991.5px) {
+/*@media (max-width: 991.5px) {
     html {
         font-size: 16px;
     }
@@ -182,4 +177,4 @@
         font-size: 1.2rem;
         word-wrap: break-word;
     }
-}
+}*/
