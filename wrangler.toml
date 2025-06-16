@@ -1,0 +1,9 @@
+name = "breach-worker"
+type = "webpack"
+route = ''
+zone_id = ''
+usage_model = ''
+compatibility_flags = []
+workers_dev = true
+site = {bucket = "",entry-point = "workers-site"}
+compatibility_date = "2025-06-16"
