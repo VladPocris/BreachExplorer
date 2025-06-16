@@ -13,6 +13,10 @@ BreachExplorer is a small Blazor WebAssembly app that lets you **see the bigge
 - “Was I Breached?” lookup for your email, with friendly success or breach report.
 - Optional strong‑password generator (API key‑powered).
 
+# BreachProxyAPI Service (originally deployed on azure, now on render.com)
+A proxy to bypas CORS.
+**Live Endpoint:** https://breachexplorer.onrender.com/api/Breaches/breachedaccount/vpocris@gmail.com
+
 ## Quick start
 ```bash
 git clone https://github.com/VladPocris/BreachExplorer.git
