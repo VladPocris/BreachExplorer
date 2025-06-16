@@ -145,7 +145,7 @@ else if (breachesList.Count() <= 0 && buttonPressed)
     {
         try
         {
-            var uri = $"https://breachproxy.azurewebsites.net/api/breaches/breachedaccount/{Uri.EscapeDataString(emailAddress)}";
+            var uri = $"https://breachexplorer.onrender.com/api/Breaches/breachedaccount/{Uri.EscapeDataString(emailAddress)}";
             // first do a “raw” GET so we can check the status code:
             var response = await Http.GetAsync(uri);
 
