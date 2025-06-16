@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "BreachExplorer",
   "resources": {
-    "hash": "sha256-42rX1ebPLdaA2LU8ueH/nDrQo3x8ujUNe9gsFFD2rto=",
+    "hash": "sha256-vA9vlL9TG/B2hxjqA+I9qFrS1yGucTf+uyAF2+TLqRc=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-RiGT44TFZmHOY+Oqvb8o8r+BJVWex6+dPxFxrOiWvFY="
     },
@@ -62,7 +62,7 @@
       "System.Threading.wasm": "sha256-uEADCjlSlo/6vVBIX8IqabSf+UEtazcpcP5TNzWVyVw=",
       "System.wasm": "sha256-pAY9GZZ7nipBlYcbrQukH9oxvgW24CQewcWTkItVHOs=",
       "System.Private.CoreLib.wasm": "sha256-cgepwqzUiJ8Bf1VGTrRiGBHTTXa8y0+zXfi5FQFhFnA=",
-      "BreachExplorer.wasm": "sha256-GhUcLYq/3f396lJngLpzJ+xCsCHe0O5h5LNtlHEcpeo="
+      "BreachExplorer.wasm": "sha256-Vnpa58V144+DPaotA2hX6yLRMYRRdml8iOxOQRzmBnQ="
     }
   },
   "cacheBootResources": true,
