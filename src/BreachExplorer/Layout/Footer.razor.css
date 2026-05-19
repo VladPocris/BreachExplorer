@@ -1,0 +1,14 @@
+.footer-shell {
+    background: linear-gradient(180deg, rgba(8, 15, 28, 0.82), rgba(5, 10, 19, 0.94));
+    border-top: 1px solid rgba(176, 197, 228, 0.14);
+    backdrop-filter: blur(16px);
+}
+
+.footer-text,
+.footer-link {
+    color: #b8c7df;
+}
+
+.footer-link:hover {
+    color: #edf4ff;
+}

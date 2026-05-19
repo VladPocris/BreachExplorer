@@ -1,0 +1,749 @@
+@page "/"
+
+<PageTitle>Breach Intelligence Dashboard</PageTitle>
+
+@inject IAppConfigService AppConfigService
+@using BreachExplorer.Components
+
+<div class="home-page">
+    @if (!dataLoaded)
+    {
+        <div class="d-flex justify-content-center align-items-center loading-stage">
+            <div class="spinner-glass loading-card">
+                <div class="spinner-border spinner-border-cyan mb-3" role="img" aria-label="Loading" style="width: 60px; height: 60px; border-width: 4px;"></div>
+                <p style="font-size: 1.2rem; margin-top: 20px;">Loading breach intelligence...</p>
+            </div>
+        </div>
+    }
+    else if (success)
+    {
+        @if (!string.IsNullOrWhiteSpace(errormessage))
+        {
+            <div class="alert-glass warning mb-4 status-banner">
+                <i class="fas fa-triangle-exclamation me-2"></i>@errormessage
+            </div>
+        }
+
+        @* Hero Section *@
+        <div class="text-center mb-5 hero-stage">
+            <h1 class="typewriter-heading">
+                <span class="typewriter-text">Breach Intelligence Dashboard</span>
+            </h1>
+            <div class="section-divider"></div>
+            <p class="text-muted" style="font-size: 1.2rem;">Real-time security insights for your organization</p>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row g-4" style="margin-bottom: 60px;">
+                @* Latest Breach Card *@
+                <div class="col-lg-6">
+                    <div class="glass-card neon-border panel-card" style="padding: 30px; height: 100%;">
+                        <h3 class="gradient-header" style="margin-bottom: 20px; font-weight: 700;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Latest Breach
+                        </h3>
+                        @if (latestBreach != null)
+                        {
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <img src="@latestBreach.LogoPath" class="img-fluid" alt="@latestBreach.Name" style="max-width: 100px; margin-bottom: 15px;" />
+                                    @if (latestBreach.IsVerified)
+                                    {
+                                        <span class="badge-glass success" style="display: block;">Verified</span>
+                                    }
+                                </div>
+                                <div class="col-8">
+                                    <h5 class="gradient-header-alt" style="margin-bottom: 12px;">@latestBreach.Name</h5>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Records:</small>
+                                        <p style="margin: 0; color: var(--accent-tertiary); font-weight: 700;">@latestBreach.PwnCount.ToString("N0")</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Date:</small>
+                                        <p style="margin: 0; color: var(--accent-primary);">@latestBreach.BreachDate</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Description:</small>
+                                        <p style="margin: 0; color: var(--text-primary);">@((MarkupString)latestBreach.Description)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* Password Generator Card *@
+                <div class="col-lg-6">
+                    <div class="glass-card neon-border panel-card" style="padding: 30px; height: 100%;">
+                        <h3 class="gradient-header" style="margin-bottom: 20px; font-weight: 700;">
+                            <i class="fas fa-key me-2"></i>Generate Password
+                        </h3>
+
+                        <div class="mb-4">
+                            <label class="form-label" style="color: var(--accent-primary); font-weight: 600;">Length: <span class="badge-glass">@sliderValue</span></label>
+                            <input type="range" class="form-range" min="1" max="64" step="1" @bind="@sliderValue" @oninput="UpdateTooltipValue" style="filter: hue-rotate(190deg);" />
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="numbers" @bind="@optionNumbers" />
+                                <label class="form-check-label" for="numbers">Include Numbers</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="special" @bind="@optionCharacters" />
+                                <label class="form-check-label" for="special">Include Special Characters</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input class="form-control input-glass" type="text" placeholder="Generated password will appear here..." readonly @bind="@generatedPassword" id="passwordInput" />
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-glass flex-grow-1" type="button" @onclick="UpdatePassword" disabled="@isGeneratingPassword">
+                                @if (isGeneratingPassword)
+                                {
+                                    <span class="spinner-border spinner-border-sm spinner-border-cyan me-2"></span>
+                                    <span>Generating...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-magic me-2"></i><span>Generate</span>
+                                }
+                            </button>
+                            <button class="btn btn-glass-secondary" type="button" @onclick="CopyTextToClipboard" style="min-width: 120px;">
+                                <i class="fas fa-copy me-2"></i>Copy
+                            </button>
+                        </div>
+                        @if (showTooltip)
+                        {
+                            <div style="margin-top: 10px; padding: 10px; background: rgba(0,255,136,0.2); border-radius: 8px; border-left: 3px solid #00ff88;">
+                                <small style="color: #00ff88;"><i class="fas fa-check-circle me-1"></i>Copied!</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Top Breaches Section *@
+            <div class="mb-5">
+                <h2 class="section-title gradient-header-alt">Top Data Breaches</h2>
+                <div class="section-divider"></div>
+
+                <div class="glass-card neon-border panel-card" style="padding: 30px; margin-bottom: 20px;">
+                    <BarChart @ref="barChartTop" style="display: inline-block; width: auto; height: 400px; max-width: 100%;" />
+                </div>
+
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <button class="btn btn-glass" @onclick="async () => await ShowHorizontalBarChartTopAsync()">
+                        <i class="fas fa-chart-bar me-2"></i>Horizontal View
+                    </button>
+                    <button class="btn btn-glass" @onclick="async () => await ShowVerticalBarChartTopAsync()">
+                        <i class="fas fa-chart-column me-2"></i>Vertical View
+                    </button>
+                </div>
+            </div>
+
+            @* Company Comparison Section *@
+            <div>
+                <h2 class="section-title gradient-header">Compare Companies</h2>
+                <div class="section-divider"></div>
+
+                <div class="glass-card neon-border panel-card" style="padding: 30px; margin-bottom: 20px;">
+                    <BarChart @ref="barChartCompare" style="display: inline-block; width: auto; height: 400px; max-width: 100%;" />
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <div style="display: flex; gap: 10px; position: relative; align-items: end;">
+                            <div style="position: relative; min-width: 0; flex-grow: 1;">
+                                <input type="text" class="form-control input-glass" placeholder="Search company..." @bind="@companyName" @oninput="OnCompanySearchInput" @onfocus="OnCompanySearchFocus" @onblur="OnCompanySearchBlur" @onkeydown="OnCompanySearchKeyDown" style="width: 100%;"/>
+                                @if (showCompanySuggestions && filteredCompanies.Any())
+                                {
+                                    <div style="position: absolute; z-index: 9999; left: 0; right: 0; bottom: 100%; border: 1px solid rgba(176, 197, 228, 0.3); border-top: none; max-height: 200px; overflow-y: auto; background: rgba(12, 21, 39, 0.95); backdrop-filter: var(--blur-effect);">
+                                        <div class="list-group list-group-flush">
+                                            @foreach (var company in filteredCompanies.Take(8))
+                                            {
+                                                <div class="list-group-item list-group-item-action glass-card small" @onclick="() => SelectCompany(company.Name)" style="border-radius: 0; margin: 0; border-bottom: none;">
+                                                    @company.Name
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <button class="btn btn-glass" @onclick="async () => await AddBarChartCompareAsync(companyName)">
+                                <i class="fas fa-plus me-1"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-glass flex-grow-1" @onclick="async () => await RandomChartDataCompare()">
+                                <i class="fas fa-dice me-2"></i>Random Companies
+                            </button>
+                            <button class="btn btn-glass-secondary" @onclick="async () => await CleanChartDataCompare()">
+                                <i class="fas fa-trash me-2"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <button class="btn btn-glass" @onclick="async () => await ShowHorizontalBarChartCompareAsync()">
+                        <i class="fas fa-chart-bar me-2"></i>Horizontal View
+                    </button>
+                    <button class="btn btn-glass" @onclick="async () => await ShowVerticalBarChartCompareAsync()">
+                        <i class="fas fa-chart-column me-2"></i>Vertical View
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-center align-items-center error-stage">
+            <div class="alert-glass danger error-card" style="max-width: 600px; padding: 40px;">
+                <h3 style="color: #ff006e; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-circle me-2"></i>Unable to Load Data
+                </h3>
+                <p class="mb-3">@errormessage</p>
+                <button class="btn btn-glass-secondary" @onclick="async () => await ReloadDataAsync()">
+                    <i class="fas fa-redo me-2"></i>Retry
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool success;
+    private bool dataLoaded = false;
+    private bool isGeneratingPassword = false;
+    private string? errormessage;
+    private List<string> colorPalette = new List<string> { "rgba(120, 217, 255, 0.6)", "rgba(255, 122, 168, 0.6)", "rgba(100, 240, 176, 0.6)", "rgba(120, 217, 255, 0.6)", "rgba(255, 122, 168, 0.6)" };
+
+        // Autocomplete functionality
+        private bool showCompanySuggestions = false;
+        private List<Breach> filteredCompanies = new List<Breach>();
+        private int selectedIndex = -1;
+    private bool chartsInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadDataAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!dataLoaded || !success || chartsInitialized)
+        {
+            return;
+        }
+
+        chartsInitialized = true;
+
+        try
+        {
+            await InitializeChartDataTop();
+            await InitializeChartDataCompare();
+        }
+        catch (Exception ex)
+        {
+            success = false;
+            errormessage = $"Error loading data: {ex.Message}";
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadDataAsync()
+    {
+        try
+        {
+            Console.WriteLine("ReloadDataAsync: Starting data load");
+            dataLoaded = false;
+            success = true;
+            errormessage = null;
+            chartsInitialized = false;
+            StateHasChanged();
+
+            var warnings = new List<string>();
+
+            var breachWarning = await GetBreachAsync();
+            if (!string.IsNullOrWhiteSpace(breachWarning))
+            {
+                warnings.Add(breachWarning);
+            }
+
+            var breachesWarning = await GetBreachesAsync();
+            if (!string.IsNullOrWhiteSpace(breachesWarning))
+            {
+                warnings.Add(breachesWarning);
+            }
+
+            Console.WriteLine($"ReloadDataAsync: breachesList count after loading: {breachesList.Count}");
+            success = breachesList.Count > 0;
+            errormessage = success
+                ? string.Join(" ", warnings)
+                : warnings.Count > 0
+                    ? $"Error loading data: {string.Join(" ", warnings)}"
+                    : "Error loading data: no breach data was returned.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ReloadDataAsync: Exception: {ex.Message}");
+            success = false;
+            errormessage = $"Error loading data: {ex.Message}";
+        }
+        finally
+        {
+            dataLoaded = true;
+            Console.WriteLine("ReloadDataAsync: Finished data load");
+            StateHasChanged();
+        }
+    }
+
+    private Breach? latestBreach;
+    private List<Breach> breachesList = new List<Breach>();
+
+    private string GetBackendApiBaseUrl()
+    {
+        return AppConfigService.GetBackendApiUrl().TrimEnd('/');
+    }
+
+    private async Task<string?> GetBreachAsync()
+    {
+        try
+        {
+            string uri = $"{GetBackendApiBaseUrl()}/api/Breaches/latestbreach";
+            latestBreach = await Http.GetFromJsonAsync<Breach>(uri);
+            return latestBreach is null ? "Latest breach response was empty." : null;
+        }
+        catch (Exception e)
+        {
+            latestBreach = null;
+            return e.Message;
+        }
+    }
+
+    private async Task<string?> GetBreachesAsync()
+    {
+        try
+        {
+            string uri = $"{GetBackendApiBaseUrl()}/api/Breaches/breaches";
+            breachesList = await Http.GetFromJsonAsync<List<Breach>>(uri) ?? new List<Breach>();
+            return breachesList.Count == 0 ? "Breach list response was empty." : null;
+        }
+        catch (Exception e)
+        {
+            breachesList = new List<Breach>();
+            return e.Message;
+        }
+    }
+
+    public class Breach
+    {
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Domain { get; set; }
+        public string? BreachDate { get; set; }
+        public DateTime AddedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public int PwnCount { get; set; }
+        public string? Description { get; set; }
+        public string? LogoPath { get; set; }
+        public List<string>? DataClasses { get; set; }
+        public bool IsVerified { get; set; }
+        public bool IsFabricated { get; set; }
+        public bool IsSensitive { get; set; }
+        public bool IsRetired { get; set; }
+        public bool IsSpamList { get; set; }
+        public bool IsMalware { get; set; }
+        public bool IsSubscriptionFree { get; set; }
+    }
+
+    private Password? password;
+    private string? generatedPassword;
+    private bool optionNumbers = true;
+    private bool optionCharacters = true;
+
+    private async Task GetPasswordAsync()
+    {
+        isGeneratingPassword = true;
+        StateHasChanged();
+
+        try
+        {
+            string backendUrl = GetBackendApiBaseUrl();
+            string uri =
+                $"{backendUrl}/api/Breaches/generate-password?length="
+                + sliderValue
+                + "&includeNumbers=" + optionNumbers
+                + "&includeSpecialChars=" + optionCharacters;
+
+            var response = await Http.GetAsync(uri);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string msg;
+                try
+                {
+                    using var doc = JsonDocument.Parse(body);
+                    msg = doc.RootElement.GetProperty("error").GetString() ?? body;
+                }
+                catch
+                {
+                    msg = body;
+                }
+
+                if (!optionNumbers || !optionCharacters)
+                {
+                    var missingFeatures = new List<string>();
+                    if (!optionNumbers)
+                        missingFeatures.Add("numbers");
+                    if (!optionCharacters)
+                        missingFeatures.Add("special characters");
+
+                    msg = $"Cannot generate without {string.Join(" and ", missingFeatures)}";
+                }
+
+                errormessage = msg;
+                ToastService.Notify(new(ToastType.Warning, msg));
+                return;
+            }
+
+            password = JsonSerializer.Deserialize<Password>(body);
+            errormessage = String.Empty;
+            generatedPassword = password!.random_password;
+        }
+        catch (Exception e)
+        {
+            ToastService.Notify(new(ToastType.Danger, $"Error: {e.Message}"));
+        }
+        finally
+        {
+            isGeneratingPassword = false;
+            StateHasChanged();
+        }
+    }
+
+    public class Password
+    {
+        public string? random_password { get; set; }
+    }
+
+    public async Task UpdatePassword()
+    {
+        await GetPasswordAsync();
+        StateHasChanged();
+    }
+
+    private int sliderValue = 16;
+    private bool showTooltip = false;
+
+    private void UpdateTooltipValue(ChangeEventArgs e)
+    {
+        sliderValue = int.Parse(e.Value.ToString());
+    }
+
+    private async Task CopyTextToClipboard()
+    {
+        if (!string.IsNullOrWhiteSpace(generatedPassword))
+        {
+            await JS.InvokeVoidAsync("copyToClipboard", generatedPassword);
+            showTooltip = true;
+            StateHasChanged();
+            await Task.Delay(2000);
+            showTooltip = false;
+            StateHasChanged();
+        }
+    }
+
+    private BarChart barChartTop = default!;
+    private BarChartOptions barChartOptionsTop = default!;
+    private ChartData chartDataTop = default!;
+
+    private List<string?> GetLabelsTop()
+    {
+        var topBreaches = breachesList.OrderByDescending(b => b.PwnCount).Take(10).ToList();
+        return topBreaches.Select(b => b.Name).ToList();
+    }
+
+    private List<double?> GetDataTop()
+    {
+        var topBreaches = breachesList.OrderByDescending(b => b.PwnCount).Take(10).ToList();
+        return topBreaches.Select(b => (double?)b.PwnCount).ToList();
+    }
+
+    private async Task InitializeChartDataTop()
+    {
+        chartDataTop = new ChartData
+        {
+            Labels = GetLabelsTop(),
+            Datasets = new List<IChartDataset>
+            {
+                new BarChartDataset()
+                {
+                    Label = "Records Exposed",
+                    Data = GetDataTop(),
+                    BackgroundColor = colorPalette,
+                    CategoryPercentage = 0.9,
+                    BarPercentage = 1,
+                }
+            }
+        };
+
+        barChartOptionsTop = new();
+        barChartOptionsTop.Responsive = true;
+        barChartOptionsTop.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "#78d9ff" };
+        barChartOptionsTop.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "#78d9ff" };
+        barChartOptionsTop.Scales.X!.Ticks = new ChartAxesTicks { Color = "#78d9ff" };
+        barChartOptionsTop.Scales.Y!.Ticks = new ChartAxesTicks { Color = "#00ff88" };
+        barChartOptionsTop.Plugins.Legend.Display = false;
+        barChartOptionsTop.Interaction = new Interaction { Mode = InteractionMode.Index };
+        barChartOptionsTop.IndexAxis = "y";
+
+        await barChartTop.InitializeAsync(chartDataTop, barChartOptionsTop);
+    }
+
+    protected async Task ShowHorizontalBarChartTopAsync()
+    {
+        barChartOptionsTop.IndexAxis = "y";
+        await barChartTop.UpdateAsync(chartDataTop, barChartOptionsTop);
+    }
+
+    protected async Task ShowVerticalBarChartTopAsync()
+    {
+        barChartOptionsTop.IndexAxis = "x";
+        await barChartTop.UpdateAsync(chartDataTop, barChartOptionsTop);
+    }
+
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    private string? companyName;
+    private BarChart barChartCompare = default!;
+    private BarChartOptions barChartOptionsCompare = default!;
+    private ChartData chartDataCompare = default!;
+    private List<Breach> breachData = new List<Breach>();
+
+    private List<string?> GetLabelsCompare(List<Breach> data)
+    {
+        var selectedBreaches = data.OrderByDescending(b => b.PwnCount).ToList();
+        return selectedBreaches.Select(b => (string?)b.Name).ToList();
+    }
+
+    private List<double?> GetDataCompare(List<Breach> data)
+    {
+        var selectedBreaches = data.OrderByDescending(b => b.PwnCount).ToList();
+        return selectedBreaches.Select(b => (double?)b.PwnCount).ToList();
+    }
+
+    protected async Task AddBarChartCompareAsync(string querry)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(companyName))
+            {
+                ToastService.Notify(new(ToastType.Info, "Enter a company name."));
+            }
+            else if (breachData.Count == 15)
+            {
+                ToastService.Notify(new(ToastType.Danger, "Maximum 15 companies. Remove one first."));
+            }
+            else
+            {
+                var temp = breachesList.Where(breach => breach.Name?.ToUpper() == querry?.ToUpper()).ToList();
+
+                if (temp.Count <= 0)
+                {
+                    ToastService.Notify(new(ToastType.Warning, "Company not found."));
+                }
+                else
+                {
+                    foreach (var breach in temp)
+                        breachData.Add(breach);
+
+                    chartDataCompare = new ChartData
+                    {
+                        Labels = GetLabelsCompare(breachData),
+                        Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } }
+                    };
+                    await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            ToastService.Notify(new(ToastType.Danger, e.Message));
+        }
+    }
+
+    protected async Task RemoveBarChartCompareAsync(string? querry)
+    {
+        if (string.IsNullOrWhiteSpace(companyName))
+        {
+            ToastService.Notify(new(ToastType.Info, "Enter a company name."));
+        }
+        else
+        {
+            var temp = breachData.Where(breach => breach.Name?.ToUpper() == querry?.ToUpper()).ToList();
+
+            if (temp.Count <= 0)
+            {
+                ToastService.Notify(new(ToastType.Warning, "Not found."));
+            }
+            else
+            {
+                breachData.Remove(temp[0]);
+                chartDataCompare = new ChartData { Labels = GetLabelsCompare(breachData), Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+                await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+            }
+        }
+    }
+
+    private async Task CleanChartDataCompare()
+    {
+        breachData = new List<Breach>();
+        chartDataCompare = new ChartData { Labels = { }, Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = { }, BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+        await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+    }
+
+    private async Task RandomChartDataCompare()
+    {
+        var random = new Random();
+        breachData = breachesList.Where(breach => breach.PwnCount > 5000000).OrderBy(b => random.Next()).Take(8).ToList();
+
+        chartDataCompare = new ChartData { Labels = GetLabelsCompare(breachData), Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+        await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+    }
+
+    private async Task InitializeChartDataCompare()
+    {
+        chartDataCompare = new ChartData { Labels = { }, Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = { }, BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+
+        barChartOptionsCompare = new();
+        barChartOptionsCompare.Responsive = true;
+        barChartOptionsCompare.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "#78d9ff" };
+        barChartOptionsCompare.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "#78d9ff" };
+        barChartOptionsCompare.Scales.X!.Ticks = new ChartAxesTicks { Color = "#78d9ff" };
+        barChartOptionsCompare.Scales.Y!.Ticks = new ChartAxesTicks { Color = "#00ff88" };
+        barChartOptionsCompare.Plugins.Legend.Display = false;
+        barChartOptionsCompare.Interaction = new Interaction { Mode = InteractionMode.Index };
+        barChartOptionsCompare.IndexAxis = "y";
+
+        await barChartCompare.InitializeAsync(chartDataCompare, barChartOptionsCompare);
+    }
+
+    protected async Task ShowHorizontalBarChartCompareAsync()
+    {
+        barChartOptionsCompare.IndexAxis = "y";
+        await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+    }
+
+    protected async Task ShowVerticalBarChartCompareAsync()
+    {
+        barChartOptionsCompare.IndexAxis = "x";
+        await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+    }
+
+    private void OnCompanySearchFocus(FocusEventArgs e)
+    {
+        // When input gets focus, show suggestions
+        if (breachesList.Count == 0)
+        {
+            // Data not loaded yet or empty
+            showCompanySuggestions = false;
+        }
+        else if (string.IsNullOrWhiteSpace(companyName))
+        {
+            // Show all companies when focused and empty
+            filteredCompanies = breachesList.OrderBy(b => b.Name).ToList();
+            showCompanySuggestions = filteredCompanies.Any();
+            selectedIndex = -1;
+        }
+        else
+        {
+            // Show filtered results when focused and has text
+            var searchTerm = companyName.Trim().ToUpper();
+            filteredCompanies = breachesList
+                .Where(b => b.Name != null && b.Name.ToUpper().Contains(searchTerm))
+                .OrderBy(b => b.Name)
+                .ToList();
+
+            showCompanySuggestions = filteredCompanies.Any();
+            selectedIndex = -1;
+        }
+
+        // Ensure UI updates
+        StateHasChanged();
+    }
+
+    private async void OnCompanySearchBlur(FocusEventArgs e)
+    {
+        // Hide suggestions when input loses focus
+        // Delay slightly to allow click events on suggestions to fire
+        await Task.Delay(200);
+        // Always hide suggestions on blur - this ensures input is accessible again
+        showCompanySuggestions = false;
+        StateHasChanged();
+    }
+
+    private void OnCompanySearchInput(ChangeEventArgs e)
+    {
+        // Use the event value for immediate response to typing
+        string? value = e.Value?.ToString();
+        companyName = value; // Update the bound field to keep it in sync
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            filteredCompanies = new List<Breach>();
+            showCompanySuggestions = false;
+            return;
+        }
+
+        var searchTerm = value.Trim().ToUpper();
+        filteredCompanies = breachesList
+            .Where(b => b.Name != null && b.Name.ToUpper().Contains(searchTerm))
+            .OrderBy(b => b.Name)
+            .ToList();
+
+        showCompanySuggestions = filteredCompanies.Any();
+        selectedIndex = -1;
+        StateHasChanged();
+    }
+
+    private void OnCompanySearchKeyDown(KeyboardEventArgs e)
+    {
+        if (!showCompanySuggestions || !filteredCompanies.Any())
+            return;
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                selectedIndex = (selectedIndex + 1) % filteredCompanies.Count;
+                break;
+            case "ArrowUp":
+                selectedIndex = (selectedIndex - 1 + filteredCompanies.Count) % filteredCompanies.Count;
+                break;
+            case "Enter":
+                if (selectedIndex >= 0 && selectedIndex < filteredCompanies.Count)
+                {
+                    SelectCompany(filteredCompanies[selectedIndex].Name);
+                }
+                else if (!string.IsNullOrWhiteSpace(companyName))
+                {
+                    SelectCompany(companyName);
+                }
+                break;
+            case "Escape":
+                showCompanySuggestions = false;
+                break;
+        }
+    }
+
+    private void SelectCompany(string company)
+    {
+        companyName = company;
+        showCompanySuggestions = false;
+        _ = AddBarChartCompareAsync(companyName);
+    }
+}

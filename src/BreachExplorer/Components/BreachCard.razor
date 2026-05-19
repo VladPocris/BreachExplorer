@@ -1,0 +1,57 @@
+<div class="col-lg-6 col-md-12 d-flex justify-content-center mb-4">
+    <div class="glass-card neon-border panel-card">
+        <div class="d-grid">
+            <div class="row">
+                <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
+                    <img src="@BreachData.LogoPath"
+                         class="img-fluid"
+                         alt="@BreachData.Name logo"
+                         style="max-height: 120px; max-width: 100px; width: auto;" />
+                    @if (BreachData.IsVerified)
+                    {
+                        <svg width="100px" height="100px" class="mt-2" role="img" aria-label="Verified source">
+                            <use xlink:href="images/Checkmark.svg#checkmark"></use>
+                        </svg>
+                        <span class="badge-glass success" style="display: block;">VERIFIED SOURCE</span>
+                    }
+                    else
+                    {
+                        <svg width="100px" height="100px" class="mt-2" role="img" aria-label="Non-verified source">
+                            <use xlink:href="images/Cancel.svg#unverified"></use>
+                        </svg>
+                        <span class="badge-glass danger" style="display: block;">NON-VERIFIED SOURCE</span>
+                    }
+                </div>
+                <div class="col-lg-8 col-12">
+                    <h3 class="gradient-header" style="margin-bottom: 15px;">
+                        <strong>Name:</strong>
+                        <span class="gradient-header-alt">
+                            @BreachData.Name
+                        </span>
+                    </h3>
+                    <div class="mb-2">
+                        <small class="text-muted">Domain:</small>
+                        <p style="margin: 0; color: var(--text-primary);">@BreachData.Domain</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Date:</small>
+                        <p style="margin: 0; color: var(--accent-primary);">@BreachData.BreachDate</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Data exposed:</small>
+                        <p style="margin: 0; color: var(--accent-tertiary); font-weight: 700;">@BreachData.PwnCount.ToString("N0")</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Description:</small>
+                        <p style="margin: 0; color: var(--text-primary);">@((MarkupString)BreachData.Description)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public dynamic? BreachData { get; set; }
+}

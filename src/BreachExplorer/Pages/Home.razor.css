@@ -168,6 +168,114 @@
         background-color: green;
     }
 
+    .home-page {
+        position: relative;
+        padding: 2rem 1rem 4rem;
+        overflow: hidden;
+    }
+
+    .home-page::before,
+    .home-page::after {
+        content: "";
+        position: absolute;
+        inset: auto;
+        pointer-events: none;
+        border-radius: 999px;
+        filter: blur(8px);
+        opacity: 0.8;
+    }
+
+    .home-page::before {
+        top: 2rem;
+        right: -8rem;
+        width: 18rem;
+        height: 18rem;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.15), transparent 68%);
+    }
+
+    .home-page::after {
+        bottom: 5rem;
+        left: -6rem;
+        width: 16rem;
+        height: 16rem;
+        background: radial-gradient(circle, rgba(255, 0, 110, 0.12), transparent 68%);
+    }
+
+    .loading-stage,
+    .error-stage {
+        min-height: calc(100vh - 12rem);
+    }
+
+    .loading-card,
+    .error-card,
+    .panel-card {
+        position: relative;
+        backdrop-filter: blur(18px);
+        background: linear-gradient(180deg, rgba(10, 20, 34, 0.88), rgba(7, 15, 27, 0.78));
+        border: 1px solid rgba(93, 230, 255, 0.16);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+    }
+
+    .loading-card {
+        min-width: min(100%, 28rem);
+        text-align: center;
+    }
+
+    .hero-stage {
+        position: relative;
+        padding: 4.5rem 1rem 2rem;
+    }
+
+    .hero-stage .section-title {
+        letter-spacing: 0.02em;
+    }
+
+    .status-banner {
+        margin-inline: auto;
+        max-width: 72rem;
+    }
+
+    .panel-card {
+        border-radius: 1.5rem;
+        overflow: hidden;
+    }
+
+    .panel-card h3,
+    .panel-card h2,
+    .error-card h3 {
+        text-shadow: 0 0 18px rgba(0, 212, 255, 0.12);
+    }
+
+    .glass-card.neon-border.panel-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent 35%, rgba(255, 0, 110, 0.05));
+        pointer-events: none;
+    }
+
+    .panel-card:hover {
+        transform: translateY(-2px);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+    }
+
+    @media (max-width: 768px) {
+        .home-page {
+            padding-inline: 0.75rem;
+        }
+
+        .hero-stage {
+            padding-top: 2.5rem;
+        }
+
+        .loading-stage,
+        .error-stage {
+            min-height: auto;
+            padding-block: 4rem;
+        }
+    }
+
 /*@media (max-width: 991.5px) {
     html {
         font-size: 16px;

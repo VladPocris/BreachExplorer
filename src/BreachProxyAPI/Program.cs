@@ -2,12 +2,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using API_Proxy.Services;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load .env file
+Env.Load();
+
+// Load environment variables from .env file
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddHttpClient(); // Add HttpClient service for dependency injection
+builder.Services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
 
 // Add CORS policy
 builder.Services.AddCors(options =>

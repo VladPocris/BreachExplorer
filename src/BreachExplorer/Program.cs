@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using BreachExplorer;
 
 namespace BreachExplorer
 {
@@ -12,10 +13,20 @@ namespace BreachExplorer
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped<IEnvLoader, EnvLoader>();
+            builder.Services.AddScoped<IAppConfigService, AppConfigService>();
 
             builder.Services.AddBlazorBootstrap();
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+
+            // Initialize environment variables from .env
+            var envLoader = host.Services.GetRequiredService<IEnvLoader>();
+            await envLoader.LoadAsync();
+
+            await host.RunAsync();
         }
     }
 }
+
+
