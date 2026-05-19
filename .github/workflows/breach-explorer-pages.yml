@@ -23,11 +23,14 @@ env:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
+    # Uses github-pages environment secrets/variables (not repository secrets)
+    environment: github-pages
 
     env:
       CI: true
       BLAZOR_URL: http://localhost:5241
-      URL_BACKEND_API: ${{ secrets.URL_BACKEND_API }}
+      # Environment variable first, then environment secret, then repository secret
+      URL_BACKEND_API: ${{ vars.URL_BACKEND_API || secrets.URL_BACKEND_API }}
 
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +42,7 @@ jobs:
       - name: Configure test env.json
         run: |
           if [ -z "$URL_BACKEND_API" ]; then
-            echo "::error::Set repository secret URL_BACKEND_API"
+            echo "::error::Set URL_BACKEND_API on the github-pages environment (Variables or Secrets), or as a repository Actions secret."
             exit 1
           fi
           printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > src/BreachExplorer/wwwroot/env.json
@@ -81,9 +84,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: e2e-tests
     if: always() && (needs.e2e-tests.result == 'success' || needs.e2e-tests.result == 'failure' || needs.e2e-tests.result == 'skipped')
+    environment: github-pages
 
     env:
-      URL_BACKEND_API: ${{ secrets.URL_BACKEND_API }}
+      URL_BACKEND_API: ${{ vars.URL_BACKEND_API || secrets.URL_BACKEND_API }}
 
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +99,7 @@ jobs:
       - name: Write production env.json (before publish)
         run: |
           if [ -z "$URL_BACKEND_API" ]; then
-            echo "::error::Set repository secret URL_BACKEND_API"
+            echo "::error::Set URL_BACKEND_API on the github-pages environment (Variables or Secrets), or as a repository Actions secret."
             exit 1
           fi
           printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > src/BreachExplorer/wwwroot/env.json
