@@ -112,22 +112,25 @@ jobs:
 
       - name: Write env.json into publish output
         run: |
-          # Blazor publish may omit env.json; always place it at the site root for GitHub Pages.
-          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > publish/env.json
-          if [ -d publish/wwwroot ]; then
-            printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > publish/wwwroot/env.json
+          # .NET 8 Blazor publish puts static files under publish/wwwroot/
+          ENV_FILE="publish/wwwroot/env.json"
+          if [ ! -d publish/wwwroot ]; then
+            echo "::error::Expected publish/wwwroot after dotnet publish"
+            find publish -maxdepth 3 -type f | head -50
+            exit 1
           fi
+          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > "$ENV_FILE"
           echo "Published env.json:"
-          cat publish/env.json
-          if grep -q 'localhost' publish/env.json; then
-            echo "::error::publish/env.json must not contain localhost"
+          cat "$ENV_FILE"
+          if grep -q 'localhost' "$ENV_FILE"; then
+            echo "::error::env.json must not contain localhost"
             exit 1
           fi
 
       - name: Prepare GitHub Pages artifact
         run: |
           mkdir -p pages
-          cp -r publish/* pages/
+          cp -r publish/wwwroot/* pages/
           cp pages/index.html pages/404.html
           touch pages/.nojekyll
 
