@@ -4,6 +4,7 @@
 
 @inject IAppConfigService AppConfigService
 @using BreachExplorer.Components
+@using BreachExplorer.Helpers
 
 <div class="home-page">
     @if (!dataLoaded)
@@ -20,7 +21,7 @@
         @if (!string.IsNullOrWhiteSpace(errormessage))
         {
             <div class="alert-glass warning mb-4 status-banner">
-                <i class="fas fa-triangle-exclamation me-2"></i>@errormessage
+                <i class="bi bi-exclamation-triangle me-2"></i>@errormessage
             </div>
         }
 
@@ -30,29 +31,28 @@
                 <span class="typewriter-text">Breach Intelligence Dashboard</span>
             </h1>
             <div class="section-divider"></div>
-            <p class="text-muted" style="font-size: 1.2rem;">Real-time security insights for your organization</p>
+            <p class="home-page__tagline text-muted">Real-time security insights for your organization</p>
         </div>
 
-        <div class="container-fluid">
-            <div class="row g-4" style="margin-bottom: 60px;">
-                @* Latest Breach Card *@
-                <div class="col-lg-6">
-                    <div class="glass-card neon-border panel-card" style="padding: 30px; height: 100%;">
-                        <h3 class="gradient-header" style="margin-bottom: 20px; font-weight: 700;">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Latest Breach
+        <div class="container-fluid home-page__content">
+            <div class="row g-4 home-page__cards">
+                <div class="col-12 col-lg-6">
+                    <div class="glass-card neon-border panel-card dashboard-card">
+                        <h3 class="dashboard-card__title gradient-header">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Latest Breach
                         </h3>
                         @if (latestBreach != null)
                         {
-                            <div class="row">
-                                <div class="col-4 text-center">
-                                    <img src="@latestBreach.LogoPath" class="img-fluid" alt="@latestBreach.Name" style="max-width: 100px; margin-bottom: 15px;" />
+                            <div class="row g-3 dashboard-card__breach">
+                                <div class="col-12 col-sm-4 text-center">
+                                    <img src="@latestBreach.LogoPath" class="dashboard-card__logo img-fluid" alt="@latestBreach.Name" />
                                     @if (latestBreach.IsVerified)
                                     {
                                         <span class="badge-glass success" style="display: block;">Verified</span>
                                     }
                                 </div>
-                                <div class="col-8">
-                                    <h5 class="gradient-header-alt" style="margin-bottom: 12px;">@latestBreach.Name</h5>
+                                <div class="col-12 col-sm-8">
+                                    <h5 class="dashboard-card__name">@latestBreach.Name</h5>
                                     <div class="mb-2">
                                         <small class="text-muted">Records:</small>
                                         <p style="margin: 0; color: var(--accent-tertiary); font-weight: 700;">@latestBreach.PwnCount.ToString("N0")</p>
@@ -71,11 +71,10 @@
                     </div>
                 </div>
 
-                @* Password Generator Card *@
-                <div class="col-lg-6">
-                    <div class="glass-card neon-border panel-card" style="padding: 30px; height: 100%;">
-                        <h3 class="gradient-header" style="margin-bottom: 20px; font-weight: 700;">
-                            <i class="fas fa-key me-2"></i>Generate Password
+                <div class="col-12 col-lg-6">
+                    <div class="glass-card neon-border panel-card dashboard-card">
+                        <h3 class="dashboard-card__title gradient-header">
+                            <i class="bi bi-key me-2"></i>Generate Password
                         </h3>
 
                         <div class="mb-4">
@@ -98,7 +97,7 @@
                             <input class="form-control input-glass" type="text" placeholder="Generated password will appear here..." readonly @bind="@generatedPassword" id="passwordInput" />
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="dashboard-actions d-flex gap-2 flex-wrap">
                             <button class="btn btn-glass flex-grow-1" type="button" @onclick="UpdatePassword" disabled="@isGeneratingPassword">
                                 @if (isGeneratingPassword)
                                 {
@@ -107,52 +106,66 @@
                                 }
                                 else
                                 {
-                                    <i class="fas fa-magic me-2"></i><span>Generate</span>
+                                    <i class="bi bi-stars me-2"></i><span>Generate</span>
                                 }
                             </button>
-                            <button class="btn btn-glass-secondary" type="button" @onclick="CopyTextToClipboard" style="min-width: 120px;">
-                                <i class="fas fa-copy me-2"></i>Copy
+                            <button class="btn btn-glass-secondary dashboard-actions__copy" type="button" @onclick="CopyTextToClipboard">
+                                <i class="bi bi-copy me-2"></i>Copy
                             </button>
                         </div>
                         @if (showTooltip)
                         {
                             <div style="margin-top: 10px; padding: 10px; background: rgba(0,255,136,0.2); border-radius: 8px; border-left: 3px solid #00ff88;">
-                                <small style="color: #00ff88;"><i class="fas fa-check-circle me-1"></i>Copied!</small>
+                                <small style="color: #00ff88;"><i class="bi bi-check-circle me-1"></i>Copied!</small>
                             </div>
                         }
                     </div>
                 </div>
             </div>
 
-            @* Top Breaches Section *@
-            <div class="mb-5">
+            <section class="chart-section">
                 <h2 class="section-title gradient-header-alt">Top Data Breaches</h2>
                 <div class="section-divider"></div>
+                <p class="chart-section__hint text-muted text-center">Bar color: light blue = most records exposed, dark blue = fewest</p>
 
-                <div class="glass-card neon-border panel-card" style="padding: 30px; margin-bottom: 20px;">
-                    <BarChart @ref="barChartTop" style="display: inline-block; width: auto; height: 400px; max-width: 100%;" />
+                <div class="glass-card neon-border panel-card chart-panel">
+                    <div class="chart-shell">
+                        <BarChart @ref="barChartTop" Height="@chartHeightTop" HeightUnit="Unit.Px" />
+                    </div>
+                    <div class="chart-legend" aria-hidden="true">
+                        <span>Most exposed</span>
+                        <span class="chart-legend__gradient"></span>
+                        <span>Fewest exposed</span>
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                    <button class="btn btn-glass" @onclick="async () => await ShowHorizontalBarChartTopAsync()">
-                        <i class="fas fa-chart-bar me-2"></i>Horizontal View
+                <div class="chart-toolbar">
+                    <button class="btn btn-glass @(topChartHorizontal ? "active" : "")" @onclick="ShowHorizontalBarChartTopAsync">
+                        <i class="bi bi-bar-chart me-2"></i>Horizontal
                     </button>
-                    <button class="btn btn-glass" @onclick="async () => await ShowVerticalBarChartTopAsync()">
-                        <i class="fas fa-chart-column me-2"></i>Vertical View
+                    <button class="btn btn-glass @(!topChartHorizontal ? "active" : "")" @onclick="ShowVerticalBarChartTopAsync">
+                        <i class="bi bi-graph-up me-2"></i>Vertical
                     </button>
                 </div>
-            </div>
+            </section>
 
-            @* Company Comparison Section *@
-            <div>
+            <section class="chart-section">
                 <h2 class="section-title gradient-header">Compare Companies</h2>
                 <div class="section-divider"></div>
+                <p class="chart-section__hint text-muted text-center">Add companies to compare — light blue = most records stolen</p>
 
-                <div class="glass-card neon-border panel-card" style="padding: 30px; margin-bottom: 20px;">
-                    <BarChart @ref="barChartCompare" style="display: inline-block; width: auto; height: 400px; max-width: 100%;" />
+                <div class="glass-card neon-border panel-card chart-panel">
+                    <div class="chart-shell">
+                        <BarChart @ref="barChartCompare" Height="@chartHeightCompare" HeightUnit="Unit.Px" />
+                    </div>
+                    <div class="chart-legend" aria-hidden="true">
+                        <span>Most exposed</span>
+                        <span class="chart-legend__gradient"></span>
+                        <span>Fewest exposed</span>
+                    </div>
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="row g-3 chart-controls">
                     <div class="col-12 col-md-6">
                         <div style="display: flex; gap: 10px; position: relative; align-items: end;">
                             <div style="position: relative; min-width: 0; flex-grow: 1;">
@@ -172,31 +185,31 @@
                                 }
                             </div>
                             <button class="btn btn-glass" @onclick="async () => await AddBarChartCompareAsync(companyName)">
-                                <i class="fas fa-plus me-1"></i>Add
+                                <i class="bi bi-plus me-1"></i>Add
                             </button>
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="d-flex gap-2">
                             <button class="btn btn-glass flex-grow-1" @onclick="async () => await RandomChartDataCompare()">
-                                <i class="fas fa-dice me-2"></i>Random Companies
+                                <i class="bi bi-dice me-2"></i>Random Companies
                             </button>
                             <button class="btn btn-glass-secondary" @onclick="async () => await CleanChartDataCompare()">
-                                <i class="fas fa-trash me-2"></i>Clear
+                                <i class="bi bi-trash me-2"></i>Clear
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                    <button class="btn btn-glass" @onclick="async () => await ShowHorizontalBarChartCompareAsync()">
-                        <i class="fas fa-chart-bar me-2"></i>Horizontal View
+                <div class="chart-toolbar">
+                    <button class="btn btn-glass @(compareChartHorizontal ? "active" : "")" @onclick="ShowHorizontalBarChartCompareAsync">
+                        <i class="bi bi-bar-chart me-2"></i>Horizontal
                     </button>
-                    <button class="btn btn-glass" @onclick="async () => await ShowVerticalBarChartCompareAsync()">
-                        <i class="fas fa-chart-column me-2"></i>Vertical View
+                    <button class="btn btn-glass @(!compareChartHorizontal ? "active" : "")" @onclick="ShowVerticalBarChartCompareAsync">
+                        <i class="bi bi-graph-up me-2"></i>Vertical
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
     }
     else
@@ -204,11 +217,11 @@
         <div class="d-flex justify-content-center align-items-center error-stage">
             <div class="alert-glass danger error-card" style="max-width: 600px; padding: 40px;">
                 <h3 style="color: #ff006e; margin-bottom: 15px;">
-                    <i class="fas fa-exclamation-circle me-2"></i>Unable to Load Data
+                    <i class="bi bi-exclamation-circle me-2"></i>Unable to Load Data
                 </h3>
                 <p class="mb-3">@errormessage</p>
                 <button class="btn btn-glass-secondary" @onclick="async () => await ReloadDataAsync()">
-                    <i class="fas fa-redo me-2"></i>Retry
+                    <i class="bi bi-redo me-2"></i>Retry
                 </button>
             </div>
         </div>
@@ -220,7 +233,43 @@
     private bool dataLoaded = false;
     private bool isGeneratingPassword = false;
     private string? errormessage;
-    private List<string> colorPalette = new List<string> { "rgba(120, 217, 255, 0.6)", "rgba(255, 122, 168, 0.6)", "rgba(100, 240, 176, 0.6)", "rgba(120, 217, 255, 0.6)", "rgba(255, 122, 168, 0.6)" };
+
+    private int chartHeightTop = 420;
+    private int chartHeightCompare = 320;
+    private bool topChartHorizontal = true;
+    private bool compareChartHorizontal = true;
+
+    private BarChartDataset CreateStyledBarDataset(List<double?> data, string label)
+    {
+        var pointCount = Math.Max(data?.Count ?? 0, 1);
+        var colors = ChartTheme.GenerateBlueGradientColors(data ?? new List<double?>());
+
+        if (colors.Count < pointCount)
+        {
+            colors = Enumerable.Repeat("rgba(120, 217, 255, 0.75)", pointCount).ToList();
+        }
+
+        var borders = ChartTheme.GenerateBlueGradientBorders(colors);
+
+        return new BarChartDataset
+        {
+            Label = label,
+            Data = data ?? new List<double?>(),
+            BackgroundColor = colors,
+            BorderColor = borders,
+            BorderWidth = Enumerable.Repeat(1.0, pointCount).ToList(),
+            BorderRadius = Enumerable.Repeat(8.0, pointCount).ToList(),
+            CategoryPercentage = 0.78,
+            BarPercentage = 0.88,
+            MaxBarThickness = 48
+        };
+    }
+
+    private void UpdateChartHeights()
+    {
+        chartHeightTop = ChartTheme.GetChartHeight(GetDataTop().Count, topChartHorizontal);
+        chartHeightCompare = ChartTheme.GetChartHeight(breachData.Count, compareChartHorizontal);
+    }
 
         // Autocomplete functionality
         private bool showCompanySuggestions = false;
@@ -240,12 +289,16 @@
             return;
         }
 
-        chartsInitialized = true;
+        if (barChartTop is null || barChartCompare is null)
+        {
+            return;
+        }
 
         try
         {
             await InitializeChartDataTop();
             await InitializeChartDataCompare();
+            chartsInitialized = true;
         }
         catch (Exception ex)
         {
@@ -477,45 +530,48 @@
 
     private async Task InitializeChartDataTop()
     {
+        if (barChartTop is null)
+        {
+            return;
+        }
+
+        var data = GetDataTop();
+        if (data.Count == 0)
+        {
+            return;
+        }
+
+        topChartHorizontal = true;
+        UpdateChartHeights();
+
         chartDataTop = new ChartData
         {
             Labels = GetLabelsTop(),
-            Datasets = new List<IChartDataset>
-            {
-                new BarChartDataset()
-                {
-                    Label = "Records Exposed",
-                    Data = GetDataTop(),
-                    BackgroundColor = colorPalette,
-                    CategoryPercentage = 0.9,
-                    BarPercentage = 1,
-                }
-            }
+            Datasets = new List<IChartDataset> { CreateStyledBarDataset(data, "Records exposed") }
         };
 
-        barChartOptionsTop = new();
-        barChartOptionsTop.Responsive = true;
-        barChartOptionsTop.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "#78d9ff" };
-        barChartOptionsTop.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "#78d9ff" };
-        barChartOptionsTop.Scales.X!.Ticks = new ChartAxesTicks { Color = "#78d9ff" };
-        barChartOptionsTop.Scales.Y!.Ticks = new ChartAxesTicks { Color = "#00ff88" };
-        barChartOptionsTop.Plugins.Legend.Display = false;
-        barChartOptionsTop.Interaction = new Interaction { Mode = InteractionMode.Index };
-        barChartOptionsTop.IndexAxis = "y";
+        barChartOptionsTop = new BarChartOptions();
+        ChartTheme.SetAxisOrientation(barChartOptionsTop, topChartHorizontal);
 
         await barChartTop.InitializeAsync(chartDataTop, barChartOptionsTop);
     }
 
     protected async Task ShowHorizontalBarChartTopAsync()
     {
-        barChartOptionsTop.IndexAxis = "y";
+        topChartHorizontal = true;
+        UpdateChartHeights();
+        ChartTheme.SetAxisOrientation(barChartOptionsTop, true);
         await barChartTop.UpdateAsync(chartDataTop, barChartOptionsTop);
+        StateHasChanged();
     }
 
     protected async Task ShowVerticalBarChartTopAsync()
     {
-        barChartOptionsTop.IndexAxis = "x";
+        topChartHorizontal = false;
+        UpdateChartHeights();
+        ChartTheme.SetAxisOrientation(barChartOptionsTop, false);
         await barChartTop.UpdateAsync(chartDataTop, barChartOptionsTop);
+        StateHasChanged();
     }
 
     [Inject] protected ToastService ToastService { get; set; } = default!;
@@ -562,12 +618,15 @@
                     foreach (var breach in temp)
                         breachData.Add(breach);
 
+                    var data = GetDataCompare(breachData);
+                    UpdateChartHeights();
                     chartDataCompare = new ChartData
                     {
                         Labels = GetLabelsCompare(breachData),
-                        Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } }
+                        Datasets = new List<IChartDataset> { CreateStyledBarDataset(data, "Records exposed") }
                     };
                     await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+                    StateHasChanged();
                 }
             }
         }
@@ -594,8 +653,16 @@
             else
             {
                 breachData.Remove(temp[0]);
-                chartDataCompare = new ChartData { Labels = GetLabelsCompare(breachData), Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+
+                var data = GetDataCompare(breachData);
+                UpdateChartHeights();
+                chartDataCompare = new ChartData
+                {
+                    Labels = GetLabelsCompare(breachData),
+                    Datasets = new List<IChartDataset> { CreateStyledBarDataset(data, "Records exposed") }
+                };
                 await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+                StateHasChanged();
             }
         }
     }
@@ -603,8 +670,16 @@
     private async Task CleanChartDataCompare()
     {
         breachData = new List<Breach>();
-        chartDataCompare = new ChartData { Labels = { }, Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = { }, BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+
+        var data = new List<double?>();
+        UpdateChartHeights();
+        chartDataCompare = new ChartData
+        {
+            Labels = new List<string?>(),
+            Datasets = new List<IChartDataset> { CreateStyledBarDataset(data, "Records exposed") }
+        };
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+        StateHasChanged();
     }
 
     private async Task RandomChartDataCompare()
@@ -612,37 +687,56 @@
         var random = new Random();
         breachData = breachesList.Where(breach => breach.PwnCount > 5000000).OrderBy(b => random.Next()).Take(8).ToList();
 
-        chartDataCompare = new ChartData { Labels = GetLabelsCompare(breachData), Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = GetDataCompare(breachData), BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+        // Generate gradient colors based on current data
+        var data = GetDataCompare(breachData);
+        UpdateChartHeights();
+        chartDataCompare = new ChartData
+        {
+            Labels = GetLabelsCompare(breachData),
+            Datasets = new List<IChartDataset> { CreateStyledBarDataset(data, "Records exposed") }
+        };
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+        StateHasChanged();
     }
 
     private async Task InitializeChartDataCompare()
     {
-        chartDataCompare = new ChartData { Labels = { }, Datasets = new List<IChartDataset> { new BarChartDataset() { Label = "Data exposed: ", Data = { }, BackgroundColor = colorPalette, CategoryPercentage = 0.9, BarPercentage = 1 } } };
+        if (barChartCompare is null)
+        {
+            return;
+        }
 
-        barChartOptionsCompare = new();
-        barChartOptionsCompare.Responsive = true;
-        barChartOptionsCompare.Scales.X!.Title = new ChartAxesTitle { Text = "Data Exposed", Display = true, Color = "#78d9ff" };
-        barChartOptionsCompare.Scales.Y!.Title = new ChartAxesTitle { Text = "Company Names", Display = true, Color = "#78d9ff" };
-        barChartOptionsCompare.Scales.X!.Ticks = new ChartAxesTicks { Color = "#78d9ff" };
-        barChartOptionsCompare.Scales.Y!.Ticks = new ChartAxesTicks { Color = "#00ff88" };
-        barChartOptionsCompare.Plugins.Legend.Display = false;
-        barChartOptionsCompare.Interaction = new Interaction { Mode = InteractionMode.Index };
-        barChartOptionsCompare.IndexAxis = "y";
+        compareChartHorizontal = true;
+        UpdateChartHeights();
+
+        chartDataCompare = new ChartData
+        {
+            Labels = new List<string?>(),
+            Datasets = new List<IChartDataset> { CreateStyledBarDataset(new List<double?>(), "Records exposed") }
+        };
+
+        barChartOptionsCompare = new BarChartOptions();
+        ChartTheme.SetAxisOrientation(barChartOptionsCompare, compareChartHorizontal);
 
         await barChartCompare.InitializeAsync(chartDataCompare, barChartOptionsCompare);
     }
 
     protected async Task ShowHorizontalBarChartCompareAsync()
     {
-        barChartOptionsCompare.IndexAxis = "y";
+        compareChartHorizontal = true;
+        UpdateChartHeights();
+        ChartTheme.SetAxisOrientation(barChartOptionsCompare, true);
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+        StateHasChanged();
     }
 
     protected async Task ShowVerticalBarChartCompareAsync()
     {
-        barChartOptionsCompare.IndexAxis = "x";
+        compareChartHorizontal = false;
+        UpdateChartHeights();
+        ChartTheme.SetAxisOrientation(barChartOptionsCompare, false);
         await barChartCompare.UpdateAsync(chartDataCompare, barChartOptionsCompare);
+        StateHasChanged();
     }
 
     private void OnCompanySearchFocus(FocusEventArgs e)

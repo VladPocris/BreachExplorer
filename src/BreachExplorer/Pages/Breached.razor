@@ -4,19 +4,29 @@
 
 @inject IAppConfigService AppConfigService
 @using BreachExplorer.Components
+@using BreachExplorer.Models
 
-<div style="padding: 60px 20px;">
-    <div class="text-center mb-5">
+<div class="breached-page">
+    <div class="breached-page__hero text-center">
         <h1 class="section-title gradient-header">Check Your Email</h1>
-        <div class="section-divider"></div>
-        <p class="text-muted" style="font-size: 1.1rem;">Instantly verify if your email appears in known data breaches</p>
+        <p class="breached-page__subtitle text-muted">
+            Search LeakCheck sources, enriched with Have I Been Pwned breach intelligence
+        </p>
     </div>
 
-    <div class="d-flex justify-content-center mb-5">
-        <div class="glass-card neon-border" style="max-width: 600px; padding: 30px; width: 100%;">
-            <div class="input-group gap-2">
-                <input class="form-control input-glass flex-grow-1" type="email" placeholder="Enter your email address..." @bind="@emailAddress" />
-                <button class="btn btn-glass" type="submit" id="searchPwnage" @onclick="GetBreachAsync" disabled="@isLoading" style="min-width: 150px;">
+    <div class="breached-page__search">
+        <div class="glass-card neon-border breached-page__search-card">
+            <div class="breached-page__form">
+                <input class="form-control input-glass breached-page__input"
+                       type="email"
+                       placeholder="Enter your email address..."
+                       @bind="emailAddress"
+                       @bind:event="oninput"
+                       @onkeydown="HandleKeyDown" />
+                <button class="btn btn-glass breached-page__button"
+                        type="button"
+                        @onclick="CheckEmailAsync"
+                        disabled="@isLoading">
                     @if (isLoading)
                     {
                         <span class="spinner-border spinner-border-sm spinner-border-cyan me-2" role="status" aria-hidden="true"></span>
@@ -24,6 +34,7 @@
                     }
                     else
                     {
+                        <i class="bi bi-search me-2"></i>
                         <span>Check Email</span>
                     }
                 </button>
@@ -31,221 +42,163 @@
         </div>
     </div>
 
-    @* Error State *@
-    @if (!success && buttonPressed)
+    @if (!success && hasSearched)
     {
-        <div class="d-flex justify-content-center">
-            <div class="alert-glass danger" style="max-width: 600px; width: 100%; padding: 25px;" role="alert">
-                <h3 class="mb-3" style="color: #ff006e;">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    Error
+        <div class="breached-page__status">
+            <div class="alert-glass danger breached-page__alert" role="alert">
+                <h3 class="breached-page__alert-title">
+                    <i class="bi bi-exclamation-octagon me-2"></i>Error
                 </h3>
-                <p class="mb-3">@errormessage</p>
-                <button class="btn btn-glass-secondary" @onclick="() => { success = true; buttonPressed = false; }">
-                    Try Again
-                </button>
+                <p class="mb-3">@errorMessage</p>
+                <button class="btn btn-glass-secondary" @onclick="ResetSearch">Try Again</button>
             </div>
         </div>
     }
 
-    @* Breaches Found State *@
-    @if (breachesList.Count() > 0 && success && buttonPressed)
+    @if (breaches.Count > 0 && success && hasSearched)
     {
-        <div class="mb-5">
+        <div class="breached-page__results">
             <div class="text-center mb-4">
-                <h2 style="color: #ff006e; font-size: 1.8rem; font-weight: 800;">
-                    <i class="fas fa-shield-alt me-2"></i>
-                    @breachesList.Count() Breach@(breachesList.Count() > 1 ? "es" : "") Found
+                <h2 class="breached-page__results-title">
+                    <i class="bi bi-shield-exclamation me-2"></i>
+                    @totalFound Breach@(totalFound == 1 ? "" : "es") Found
                 </h2>
-                <p class="text-muted">Your email was exposed in the following incidents:</p>
+                <p class="text-muted">
+                    Showing @breaches.Count unique source@(breaches.Count == 1 ? "" : "s")
+                    @if (totalFound > breaches.Count)
+                    {
+                        <span> (of @totalFound total hits)</span>
+                    }
+                </p>
             </div>
 
-            <div class="row g-4" style="max-width: 1200px; margin: 0 auto;">
-                @foreach (var latestBreach in breachesList)
+            <div class="row g-4 breached-page__grid">
+                @foreach (var breach in breaches)
                 {
-                    <div class="col-lg-6 col-md-12">
-                        <div class="glass-card neon-border" style="height: 100%; padding: 25px;">
-                            <div class="row">
-                                <div class="col-md-4 text-center mb-3 mb-md-0">
-                                    <img src="@latestBreach.LogoPath"
-                                         class="img-fluid"
-                                         alt="@latestBreach.Name logo"
-                                         style="max-height: 100px; max-width: 90px; width: auto; margin-bottom: 15px;" />
-                                    @if (latestBreach.IsVerified)
-                                    {
-                                        <span class="badge-glass success">
-                                            <i class="fas fa-check-circle me-1"></i>Verified
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge-glass danger">
-                                            <i class="fas fa-exclamation-circle me-1"></i>Unverified
-                                        </span>
-                                    }
-                                </div>
-                                <div class="col-md-8">
-                                    <h5 style="color: #00d4ff; margin-bottom: 15px; font-weight: 700;">@latestBreach.Name</h5>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Domain:</small>
-                                        <p style="margin: 0; color: #00ff88;">@latestBreach.Domain</p>
-                                    </div>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Breach Date:</small>
-                                        <p style="margin: 0; color: #00d4ff;">@latestBreach.BreachDate</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <small class="text-muted">Records Exposed:</small>
-                                        <p style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #ff006e;">@latestBreach.PwnCount.ToString("N0")</p>
-                                    </div>
-                                    <div style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                                        <small style="color: rgba(255,255,255,0.7);">@((MarkupString)latestBreach.Description)</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <BreachCard Breach="breach" />
                 }
             </div>
         </div>
     }
 
-    @* Safe State *@
-    @if (breachesList.Count() <= 0 && buttonPressed && success)
+    @if (breaches.Count == 0 && hasSearched && success)
     {
-        <div class="d-flex justify-content-center">
-            <div class="alert-glass success" style="max-width: 600px; width: 100%; padding: 40px; text-align: center;">
-                <h2 style="color: #00ff88; margin-bottom: 15px; font-size: 2rem;">
-                    <i class="fas fa-check-circle me-2"></i>
-                    You're Safe!
+        <div class="breached-page__status">
+            <div class="alert-glass success breached-page__alert breached-page__alert--center">
+                <h2 class="breached-page__safe-title">
+                    <i class="bi bi-check-circle me-2"></i>You're Safe!
                 </h2>
-                <p style="font-size: 1.1rem; margin-bottom: 0;">Your email was not found in any known data breaches.</p>
+                <p class="mb-0">Your email was not found in any known data breaches.</p>
             </div>
         </div>
     }
 </div>
 
 @code {
-    private string errormessage = string.Empty;
+    private string errorMessage = string.Empty;
     private bool success = true;
-    private bool isLoading = false;
-
-    private List<BreachName> breachNamesList;
+    private bool isLoading;
+    private bool hasSearched;
     private string emailAddress = string.Empty;
+    private int totalFound;
+    private List<EnrichedBreach> breaches = new();
 
-    private async Task GetBreachNamesAsync()
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !isLoading)
+        {
+            await CheckEmailAsync();
+        }
+    }
+
+    private void ResetSearch()
+    {
+        success = true;
+        hasSearched = false;
+        errorMessage = string.Empty;
+        breaches.Clear();
+    }
+
+    private async Task CheckEmailAsync()
     {
         try
         {
+            isLoading = true;
+            success = true;
+            errorMessage = string.Empty;
+            hasSearched = false;
+            breaches.Clear();
+            totalFound = 0;
+            StateHasChanged();
+
             if (string.IsNullOrWhiteSpace(emailAddress))
             {
                 success = false;
-                errormessage = "Please enter an email address.";
+                errorMessage = "Please enter an email address.";
+                hasSearched = true;
                 return;
             }
 
             if (!IsValidEmail(emailAddress))
             {
                 success = false;
-                errormessage = "Please enter a valid email format.";
+                errorMessage = "Please enter a valid email format.";
+                hasSearched = true;
                 return;
             }
 
-            string backendUrl = AppConfigService.GetBackendApiUrl();
-            var uri = $"{backendUrl}/api/Breaches/breachedaccount/{Uri.EscapeDataString(emailAddress)}";
-            var response = await Http.GetAsync(uri);
+            var backendUrl = AppConfigService.GetBackendApiUrl();
+            var uri = $"{backendUrl}/api/Breaches/check/{Uri.EscapeDataString(emailAddress.Trim())}";
 
-            switch (response.StatusCode)
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
+            var response = await Http.GetAsync(uri, cts.Token);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                case System.Net.HttpStatusCode.Unauthorized:
-                    success = false;
-                    errormessage = "API key invalid or expired.";
-                    return;
-
-                case System.Net.HttpStatusCode.Forbidden:
-                    success = false;
-                    errormessage = "Breach API is currently disabled.";
-                    return;
-
-                case System.Net.HttpStatusCode.BadRequest:
-                    success = false;
-                    errormessage = "Invalid email format.";
-                    return;
-
-                case System.Net.HttpStatusCode.NotFound:
-                    breachNamesList = new List<BreachName>();
-                    success = true;
-                    errormessage = string.Empty;
-                    return;
-
-                case System.Net.HttpStatusCode.OK:
-                    breachNamesList = await response.Content.ReadFromJsonAsync<List<BreachName>>() ?? new List<BreachName>();
-                    success = true;
-                    errormessage = string.Empty;
-                    return;
-
-                default:
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        success = false;
-                        errormessage = $"Error (Status: {(int)response.StatusCode}). Please try again.";
-                        return;
-                    }
-                    break;
+                breaches = new List<EnrichedBreach>();
+                success = true;
+                hasSearched = true;
+                return;
             }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                success = false;
+                errorMessage = response.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.BadRequest => "Invalid email format.",
+                    System.Net.HttpStatusCode.Unauthorized => "API key invalid or expired.",
+                    System.Net.HttpStatusCode.Forbidden => "Breach API access is currently restricted.",
+                    System.Net.HttpStatusCode.BadGateway => "Could not reach LeakCheck. Please try again later.",
+                    _ => $"Error (status {(int)response.StatusCode}). Please try again."
+                };
+                hasSearched = true;
+                return;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<EmailBreachCheckResult>();
+            breaches = result?.Breaches ?? new List<EnrichedBreach>();
+            totalFound = result?.TotalFound ?? breaches.Count;
+            success = true;
+            hasSearched = true;
+        }
+        catch (TaskCanceledException)
+        {
+            success = false;
+            errorMessage = "The check took too long. Try again or use a different email.";
+            hasSearched = true;
         }
         catch (HttpRequestException)
         {
             success = false;
-            errormessage = "Unable to reach the API. Check your internet connection.";
+            errorMessage = "Unable to reach the API. Check your connection and backend URL.";
+            hasSearched = true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             success = false;
-            errormessage = "An unexpected error occurred.";
-        }
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
-    }
-
-    public class BreachName
-    {
-        public string Name { get; set; }
-    }
-
-    private List<Breach> breachesList = new List<Breach>();
-    private bool buttonPressed = false;
-
-    private async Task GetBreachAsync()
-    {
-        try
-        {
-            isLoading = true;
-            success = true;
-            errormessage = string.Empty;
-            buttonPressed = false;
-            breachesList.Clear();
-            StateHasChanged();
-
-            await GetBreachNamesAsync();
-            if (!success)
-            {
-                buttonPressed = true;
-                return;
-            }
-
-            foreach (var b in breachNamesList)
-            {
-                var detail = await Http.GetFromJsonAsync<Breach>($"https://haveibeenpwned.com/api/v3/breach/{b.Name}");
-                if (detail != null)
-                    breachesList.Add(detail);
-            }
-
-            buttonPressed = true;
+            errorMessage = "An unexpected error occurred.";
+            hasSearched = true;
         }
         finally
         {
@@ -254,24 +207,9 @@
         }
     }
 
-    public class Breach
+    private static bool IsValidEmail(string email)
     {
-        public string Name { get; set; }
-        public string Title { get; set; }
-        public string Domain { get; set; }
-        public string BreachDate { get; set; }
-        public DateTime AddedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public int PwnCount { get; set; }
-        public string Description { get; set; }
-        public string LogoPath { get; set; }
-        public List<string> DataClasses { get; set; }
-        public bool IsVerified { get; set; }
-        public bool IsFabricated { get; set; }
-        public bool IsSensitive { get; set; }
-        public bool IsRetired { get; set; }
-        public bool IsSpamList { get; set; }
-        public bool IsMalware { get; set; }
-        public bool IsSubscriptionFree { get; set; }
+        var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
     }
 }

@@ -1,57 +1,104 @@
-<div class="col-lg-6 col-md-12 d-flex justify-content-center mb-4">
-    <div class="glass-card neon-border panel-card">
-        <div class="d-grid">
-            <div class="row">
-                <div class="col-lg-3 col-12 d-flex flex-column align-items-center">
-                    <img src="@BreachData.LogoPath"
-                         class="img-fluid"
-                         alt="@BreachData.Name logo"
-                         style="max-height: 120px; max-width: 100px; width: auto;" />
-                    @if (BreachData.IsVerified)
+@using BreachExplorer.Models
+
+<div class="breach-card-col col-lg-6 col-12">
+    <div class="glass-card neon-border breach-card @(Breach.IsEnriched ? "" : "breach-card--limited")">
+        <div class="breach-card__inner row g-3">
+            <div class="col-sm-4 col-12 text-center breach-card__media">
+                @if (Breach.IsEnriched && !string.IsNullOrEmpty(Breach.LogoPath))
+                {
+                    <img src="@Breach.LogoPath"
+                         class="breach-card__logo img-fluid"
+                         alt="@Breach.DisplayName logo" />
+                }
+                else
+                {
+                    <div class="breach-card__placeholder" aria-hidden="true">
+                        <i class="bi bi-shield-exclamation"></i>
+                    </div>
+                }
+
+                @if (Breach.IsEnriched)
+                {
+                    @if (Breach.IsVerified)
                     {
-                        <svg width="100px" height="100px" class="mt-2" role="img" aria-label="Verified source">
-                            <use xlink:href="images/Checkmark.svg#checkmark"></use>
-                        </svg>
-                        <span class="badge-glass success" style="display: block;">VERIFIED SOURCE</span>
+                        <span class="badge-glass success breach-card__badge">
+                            <i class="bi bi-patch-check me-1"></i>Verified
+                        </span>
                     }
                     else
                     {
-                        <svg width="100px" height="100px" class="mt-2" role="img" aria-label="Non-verified source">
-                            <use xlink:href="images/Cancel.svg#unverified"></use>
-                        </svg>
-                        <span class="badge-glass danger" style="display: block;">NON-VERIFIED SOURCE</span>
-                    }
-                </div>
-                <div class="col-lg-8 col-12">
-                    <h3 class="gradient-header" style="margin-bottom: 15px;">
-                        <strong>Name:</strong>
-                        <span class="gradient-header-alt">
-                            @BreachData.Name
+                        <span class="badge-glass danger breach-card__badge">
+                            <i class="bi bi-exclamation-circle me-1"></i>Unverified
                         </span>
-                    </h3>
-                    <div class="mb-2">
-                        <small class="text-muted">Domain:</small>
-                        <p style="margin: 0; color: var(--text-primary);">@BreachData.Domain</p>
+                    }
+                }
+                else
+                {
+                    <span class="badge-glass warning breach-card__badge">
+                        <i class="bi bi-info-circle me-1"></i>Limited details
+                    </span>
+                }
+            </div>
+
+            <div class="col-sm-8 col-12 breach-card__body">
+                <h3 class="breach-card__title gradient-header-alt">@Breach.DisplayName</h3>
+
+                @if (!Breach.IsEnriched)
+                {
+                    <p class="breach-card__limited-note text-muted">
+                        Found via LeakCheck. Full breach metadata is not available in Have I Been Pwned.
+                    </p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Breach.Domain))
+                {
+                    <div class="breach-card__field">
+                        <small class="text-muted">Domain</small>
+                        <p>@Breach.Domain</p>
                     </div>
-                    <div class="mb-2">
-                        <small class="text-muted">Date:</small>
-                        <p style="margin: 0; color: var(--accent-primary);">@BreachData.BreachDate</p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Breach.BreachDate))
+                {
+                    <div class="breach-card__field">
+                        <small class="text-muted">Breach date</small>
+                        <p class="breach-card__date">@Breach.BreachDate</p>
                     </div>
-                    <div class="mb-2">
-                        <small class="text-muted">Data exposed:</small>
-                        <p style="margin: 0; color: var(--accent-tertiary); font-weight: 700;">@BreachData.PwnCount.ToString("N0")</p>
+                }
+
+                @if (Breach.IsEnriched && Breach.PwnCount > 0)
+                {
+                    <div class="breach-card__field">
+                        <small class="text-muted">Records exposed</small>
+                        <p class="breach-card__count">@Breach.PwnCount.ToString("N0")</p>
                     </div>
-                    <div class="mb-3">
-                        <small class="text-muted">Description:</small>
-                        <p style="margin: 0; color: var(--text-primary);">@((MarkupString)BreachData.Description)</p>
+                }
+
+                @if (Breach.IsEnriched && Breach.DataClasses?.Count > 0)
+                {
+                    <div class="breach-card__field">
+                        <small class="text-muted">Data classes</small>
+                        <div class="breach-card__tags">
+                            @foreach (var dataClass in Breach.DataClasses.Take(6))
+                            {
+                                <span class="badge-glass">@dataClass</span>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Breach.Description))
+                {
+                    <div class="breach-card__description">
+                        @((MarkupString)Breach.Description)
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public dynamic? BreachData { get; set; }
+    [Parameter, EditorRequired]
+    public EnrichedBreach Breach { get; set; } = null!;
 }

@@ -1,52 +1,239 @@
-﻿.custom-gray-bg {
-    background-color: rgb(44, 48, 53);
+﻿.breached-page {
+    padding: 2.5rem 1.25rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.breached-page__hero {
+    padding-top: 0.5rem;
+}
+
+.breached-page__hero .section-title {
+    margin: 0 0 0.85rem;
+}
+
+.breached-page__subtitle {
+    font-size: 1.05rem;
+    max-width: 36rem;
+    margin: 0.25rem auto 0;
+}
+
+.breached-page__search {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+
+.breached-page__search-card {
     width: 100%;
+    max-width: 640px;
+    padding: 1.5rem;
 }
 
-/*Deep-shadow-text*/
-.deepshd {
-    color: #e0dfdc;
-    letter-spacing: .1em;
-    text-shadow: 0 -1px 0 #fff, 0 1px 0 #2e2e2e, 0 2px 0 #2c2c2c, 0 3px 0 #2a2a2a, 0 4px 0 #282828, 0 5px 0 #262626, 0 6px 0 #242424, 0 7px 0 #222, 0 8px 0 #202020, 0 9px 0 #1e1e1e, 0 10px 0 #1c1c1c, 0 11px 0 #1a1a1a, 0 12px 0 #181818, 0 13px 0 #161616, 0 14px 0 #141414, 0 15px 0 #121212, 0 22px 30px rgba(0, 0, 0, 0.9);
+.breached-page__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
 }
 
-/*Text-red-style*/
-.style-red-1 {
-    color: red;
-    letter-spacing: .1em;
-    font-family: 'Segoe MDL2 Assets';
-    text-shadow: -2px -2px 7px red, 2px 2px 1px #363636;
+.breached-page__input {
+    flex: 1 1 12rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 0.85rem;
+    height: 2.5rem;
+    min-height: 0;
+    max-height: 2.5rem;
+    font-size: 1rem;
+    line-height: 1.25;
+    box-sizing: border-box;
 }
 
-/*Text-purple-style*/
-.style-purple-1 {
-    color: blueviolet;
-    letter-spacing: .1em;
-    font-family: 'Segoe MDL2 Assets';
-    text-shadow: 0px 0px 7px blueviolet, 0px 0px 1px #363636;
+.breached-page__button {
+    flex: 0 0 auto;
+    min-width: 10rem;
+    white-space: nowrap;
 }
 
-.style-purple-2 {
+.breached-page__status {
+    display: flex;
+    justify-content: center;
+}
+
+.breached-page__alert {
+    width: 100%;
+    max-width: 640px;
+    padding: 1.75rem;
+}
+
+.breached-page__alert--center {
+    text-align: center;
+}
+
+.breached-page__alert-title {
+    color: var(--accent-secondary);
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.breached-page__results-title {
+    color: var(--accent-secondary);
+    font-size: clamp(1.35rem, 4vw, 1.8rem);
+    font-weight: 800;
+}
+
+.breached-page__safe-title {
+    color: var(--accent-tertiary);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    margin-bottom: 0.75rem;
+}
+
+.breached-page__grid {
+    margin: 0 auto;
+}
+
+::deep .breach-card {
+    padding: 1.5rem;
+    height: 100%;
+}
+
+::deep .breach-card__logo {
+    max-height: 5.5rem;
+    max-width: 5.5rem;
+    margin-bottom: 0.75rem;
+}
+
+::deep .breach-card__placeholder {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 0.75rem;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(120, 217, 255, 0.08);
+    border: 1px solid rgba(120, 217, 255, 0.2);
+    font-size: 2rem;
+    color: var(--accent-primary);
+}
+
+::deep .breach-card--limited {
+    border-style: dashed;
+}
+
+::deep .breach-card__badge {
     display: inline-block;
-    color: blueviolet;
-    letter-spacing: .1em;
-    font-family: 'Segoe MDL2 Assets';
-    text-shadow: 0px 0px 7px blueviolet, 0px 0px 1px #363636;
-    -webkit-box-reflect: below 1px linear-gradient(transparent, #3333);
+    margin-top: 0.25rem;
 }
 
-/*Text-blue-style*/
-.style-blue-1 {
-    color: blue;
-    letter-spacing: .1em;
-    font-family: 'Segoe MDL2 Assets';
-    text-shadow: -2px -2px 7px blue, 2px 2px 1px #363636;
+::deep .breach-card__title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
 }
 
-/*Text-green-style*/
-.style-green-1 {
-    color: blue;
-    letter-spacing: .1em;
-    font-family: 'Segoe MDL2 Assets';
-    text-shadow: -2px -2px 7px green, 2px 2px 1px #363636;
+::deep .breach-card__limited-note {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+::deep .breach-card__field p {
+    margin: 0.15rem 0 0.75rem;
+    color: var(--text-primary);
+}
+
+::deep .breach-card__date {
+    color: var(--accent-primary) !important;
+}
+
+::deep .breach-card__count {
+    color: var(--accent-secondary) !important;
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+::deep .breach-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+::deep .breach-card__description {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .breached-page {
+        padding: 1rem 0.75rem 3rem;
+    }
+
+    .breached-page__hero {
+        padding-top: 0.25rem;
+    }
+
+    .breached-page__hero .section-title {
+        margin-top: 0;
+    }
+
+    .breached-page__input {
+        flex: 0 0 auto;
+        height: 2.75rem;
+        max-height: 2.75rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 16px;
+    }
+
+    .breached-page__button {
+        flex: 0 0 auto;
+        height: 2.75rem;
+        min-height: 0;
+        padding: 0.5rem 1rem;
+    }
+
+    .breached-page__form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .breached-page__button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .breached-page__search-card {
+        padding: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.6rem;
+    }
+
+    .breached-page__results-title {
+        font-size: 1.25rem;
+    }
+}
+
+::deep .breach-card-col {
+    padding-inline: 0.25rem;
+}
+
+@media (max-width: 576px) {
+    ::deep .breach-card__inner {
+        text-align: center;
+    }
+
+    ::deep .breach-card__body {
+        text-align: left;
+    }
+
+    ::deep .breach-card__tags {
+        justify-content: flex-start;
+    }
 }

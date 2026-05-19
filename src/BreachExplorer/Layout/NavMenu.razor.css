@@ -1,5 +1,38 @@
 .nav-shell {
-    padding: 1rem 1rem 0;
+    padding: 0.75rem 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.nav-toggler {
+    border: 1px solid rgba(120, 217, 255, 0.28);
+    padding: 0.35rem 0.55rem;
+}
+
+.nav-toggler:focus {
+    box-shadow: 0 0 0 0.15rem rgba(120, 217, 255, 0.2);
+}
+
+.navbar-toggler-icon {
+    filter: invert(1) brightness(1.8);
+}
+
+@media (max-width: 991px) {
+    .nav-shell-inner {
+        border-radius: 1rem !important;
+    }
+
+    ::deep .navbar-collapse {
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(176, 197, 228, 0.12);
+    }
+
+    ::deep .nav-pill {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 .nav-shell-inner {

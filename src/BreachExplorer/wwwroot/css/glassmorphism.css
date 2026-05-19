@@ -25,8 +25,9 @@ html, body {
 
 /* Hero section adjustments */
 .hero-stage {
-    margin-top: -60px; /* Further reduce space between navbar and title */
+    margin-top: 0;
     margin-bottom: 3rem;
+    padding-top: 1rem;
 }
 
 /* Typewriter heading */
@@ -53,7 +54,40 @@ html, body {
 
 @keyframes typing {
     from { width: 0; }
-    to { width: 36ch; }
+    to { width: min(32ch, 100%); }
+}
+
+@media (max-width: 768px) {
+    .hero-stage {
+        padding-top: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .typewriter-heading {
+        font-size: clamp(1.25rem, 5vw, 2rem);
+    }
+
+    .typewriter-text {
+        white-space: normal;
+        border-right: none;
+        animation: none;
+        width: auto;
+    }
+
+    .section-title {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        margin: 2rem 0 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .glass-card {
+        border-radius: 12px;
+    }
+
+    .btn-glass {
+        padding: 0.65rem 1rem;
+    }
 }
 
 @keyframes blink-cursor {
@@ -111,6 +145,11 @@ body {
     background-clip: text;
     font-weight: 800;
     letter-spacing: 1px;
+    position: relative;
+}
+
+.gradient-header::after {
+    content: none;
 }
 
 .gradient-header-alt {
@@ -118,6 +157,35 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: relative;
+}
+
+.gradient-header-alt::after {
+    content: none;
+}
+
+/* Section Title */
+.section-title {
+    text-align: center;
+    margin: 56px 0 34px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, #78d9ff, #ff7aa8, #64f0b0);
+    border-radius: 2px;
 }
 
 /* Neon Border Accent */
@@ -318,6 +386,12 @@ body {
     color: #ffd3e0;
 }
 
+.badge-glass.warning {
+    background: rgba(120, 217, 255, 0.10);
+    border-color: rgba(120, 217, 255, 0.24);
+    color: #d4f1ff;
+}
+
 /* Blur Backdrop */
 .blur-backdrop {
     background: rgba(0, 0, 0, 0.3);
@@ -345,4 +419,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #78d9ff, #64f0b0);
+}
+
+/* Company suggestions hover effect - changes the text color to cyan on hover */
+.list-group-item.glass-card:hover {
+    color: #00ffff !important;
+    cursor: pointer;
 }

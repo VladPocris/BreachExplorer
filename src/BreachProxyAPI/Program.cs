@@ -17,6 +17,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient(); // Add HttpClient service for dependency injection
 builder.Services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+builder.Services.AddScoped<IBreachCheckService, BreachCheckService>();
 
 // Add CORS policy
 builder.Services.AddCors(options =>

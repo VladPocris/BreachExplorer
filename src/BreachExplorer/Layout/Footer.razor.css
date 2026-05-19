@@ -12,3 +12,15 @@
 .footer-link:hover {
     color: #edf4ff;
 }
+
+@media (max-width: 576px) {
+    .footer-shell {
+        padding: 0.65rem 0.5rem !important;
+    }
+
+    .footer-text {
+        font-size: 0.72rem;
+        line-height: 1.5;
+        display: block;
+    }
+}
