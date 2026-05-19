@@ -1,0 +1,17 @@
+# Render Blueprint — BreachProxyAPI only (Blazor frontend stays on GitHub Pages).
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: breachexplorer-api
+    runtime: docker
+    rootDir: src/BreachProxyAPI
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: KEY_BREACH_API
+        sync: false
+      - key: URL_BREACH_API
+        value: https://haveibeenpwned.com/api/v3

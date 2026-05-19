@@ -1,26 +1,21 @@
+# Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
 WORKDIR /src
 
-# Copy csproj
-COPY BreachProxyAPI.csproj ./
+COPY BreachList.csproj ./
+RUN dotnet restore BreachList.csproj
 
-# Restore
-RUN dotnet restore
+COPY . ./
+RUN dotnet publish BreachList.csproj -c Release -o /app/publish --no-restore
 
-# Copy remaining files
-COPY . .
-
-# Publish
-RUN dotnet publish -c Release -o /app/publish --no-restore
-
-# Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
+# Run
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 COPY --from=build /app/publish .
 
-EXPOSE 8080
+# Render sets PORT at runtime (default 10000). ASP.NET Core 8 reads ASPNETCORE_HTTP_PORTS.
+ENV ASPNETCORE_HTTP_PORTS=10000
+EXPOSE 10000
 
-ENTRYPOINT ["dotnet", "BreachProxyAPI.dll"]
+ENTRYPOINT ["dotnet", "BreachList.dll"]
