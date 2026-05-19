@@ -12,7 +12,7 @@ jobs:
 
     env:
       PROJECT_PATH: src/BreachExplorer/BreachExplorer.csproj
-      PUBLISH_DIR: /docs
+      PUBLISH_DIR: docs
 
     steps:
       - name: Checkout
