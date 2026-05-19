@@ -1,26 +1,29 @@
-# 1) Build stage: restore, build & publish
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
 WORKDIR /src
 
-# copy csproj(s) and restore first (leverages layer cache)
-COPY *.csproj ./
-RUN dotnet restore
+# Copy csproj first
+COPY src/BreachProxyAPI/BreachProxyAPI.csproj src/BreachProxyAPI/
 
-# copy the rest of your API code
-COPY . ./
+# Restore
+RUN dotnet restore src/BreachProxyAPI/BreachProxyAPI.csproj
 
-# publish to /app/publish (Release config)
-RUN dotnet publish -c Release -o /app/publish
+# Copy everything else
+COPY . .
 
-# 2) Runtime stage: only the runtime bits
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Publish
+RUN dotnet publish src/BreachProxyAPI/BreachProxyAPI.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore
+
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
 WORKDIR /app
 
-# copy published files from build stage
 COPY --from=build /app/publish .
 
-# expose port 80 (Render will pick it up)
-EXPOSE 80
+EXPOSE 8080
 
-# command to run your API
-ENTRYPOINT ["dotnet", "BreachList.dll"]
+ENTRYPOINT ["dotnet", "BreachProxyAPI.dll"]
