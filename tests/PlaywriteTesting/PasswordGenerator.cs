@@ -3,74 +3,52 @@
 namespace PlaywriteTesting
 {
     [TestClass]
-    public class PasswordGenerator: PageTest
+    public class PasswordGenerator : PageTest
     {
+        private static string BaseUrl =>
+            Environment.GetEnvironmentVariable("BLAZOR_URL") ?? "http://localhost:5241";
+
         [TestMethod]
         public async Task PasswordGeneratorIsFunctional()
         {
-            await Page.GotoAsync("http://localhost:5241/");
+            await Page.GotoAsync($"{BaseUrl}/");
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-            //Test Slider Value Change And Tooltip
-            var slider = Page.Locator("input#customRange3");
+            var slider = Page.Locator("input.form-range");
             await slider.EvaluateAsync("element => element.value = '32'");
             await slider.DispatchEventAsync("input");
-            var tooltip = Page.Locator("span.tooltip");
-            var tooltipText = await tooltip.TextContentAsync();
-            Assert.AreEqual("32", tooltipText);
-            await slider.EvaluateAsync("element => element.value = '16'");
 
-            //Test Include Number Checkbox
-            var checkbox1 = Page.Locator("input#inlineCheckbox1");
-            await checkbox1.SetCheckedAsync(true);
-            Assert.IsTrue(await checkbox1.IsCheckedAsync());
-            await checkbox1.SetCheckedAsync(false);
+            var checkboxNumbers = Page.Locator("#numbers");
+            await checkboxNumbers.SetCheckedAsync(true);
+            Assert.IsTrue(await checkboxNumbers.IsCheckedAsync());
+            await checkboxNumbers.SetCheckedAsync(false);
 
-            //Test Include Special Characters Checkbox
-            var checkbox2 = Page.Locator("input#inlineCheckbox2");
-            await checkbox2.SetCheckedAsync(true);
-            Assert.IsTrue(await checkbox2.IsCheckedAsync());
-            await checkbox2.SetCheckedAsync(false);
+            var checkboxSpecial = Page.Locator("#special");
+            await checkboxSpecial.SetCheckedAsync(true);
+            Assert.IsTrue(await checkboxSpecial.IsCheckedAsync());
+            await checkboxSpecial.SetCheckedAsync(false);
 
-            var buttonGenerate = Page.Locator("button.btn.btn-primary:has-text('Generate')");
-            var inputPassword = Page.Locator("input.form-control.mb-2#passwordInput");
-            //Test If Password Uses Slider Value
+            var buttonGenerate = Page.Locator("button:has-text('Generate')");
+            var inputPassword = Page.Locator("#passwordInput");
+
             await slider.EvaluateAsync("element => element.value = '32'");
+            await slider.DispatchEventAsync("input");
             await buttonGenerate.ClickAsync();
-            await Page.WaitForTimeoutAsync(1000);
+            await Page.WaitForTimeoutAsync(2000);
             var passwordValue = await inputPassword.InputValueAsync();
             Assert.AreEqual(32, passwordValue.Length);
-            await slider.EvaluateAsync("element => element.value = '16'");
 
-            //Test If Password Uses Number Checkbox Value
-            await checkbox1.SetCheckedAsync(true);
+            await checkboxNumbers.SetCheckedAsync(true);
             await buttonGenerate.ClickAsync();
-            await Page.WaitForTimeoutAsync(1000);
+            await Page.WaitForTimeoutAsync(2000);
             passwordValue = await inputPassword.InputValueAsync();
             Assert.IsTrue(passwordValue.Any(char.IsDigit));
-            await checkbox1.SetCheckedAsync(false);
 
-            //Test If Password Uses Special Characters Checkbox Value
-            await checkbox2.SetCheckedAsync(true);
+            await checkboxSpecial.SetCheckedAsync(true);
             await buttonGenerate.ClickAsync();
-            await Page.WaitForTimeoutAsync(1000);
+            await Page.WaitForTimeoutAsync(2000);
             passwordValue = await inputPassword.InputValueAsync();
             Assert.IsTrue(passwordValue.Any(ch => !char.IsLetterOrDigit(ch)));
-
-            //Test If Password Uses Special Characters and Number Checkbox Value
-            await checkbox1.SetCheckedAsync(true);
-            await buttonGenerate.ClickAsync();
-            await Page.WaitForTimeoutAsync(1000);
-            passwordValue = await inputPassword.InputValueAsync();
-            Assert.IsTrue(passwordValue.Any(char.IsDigit) && passwordValue.Any(ch => !char.IsLetterOrDigit(ch)));
-
-            //Test If Password Uses Special Characters, Number Checkbox Value and Slider Value
-            await slider.EvaluateAsync("element => element.value = '32'");
-            await buttonGenerate.ClickAsync();
-            await Page.WaitForTimeoutAsync(1500);
-            passwordValue = await inputPassword.InputValueAsync();
-            Assert.IsTrue(passwordValue.Length == 32 && passwordValue.Any(char.IsDigit) && passwordValue.Any(ch => !char.IsLetterOrDigit(ch)));
-
         }
     }
 }

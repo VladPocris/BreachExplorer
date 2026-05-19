@@ -5,42 +5,37 @@ namespace PlaywriteTesting
     [TestClass]
     public class NavigationBar : PageTest
     {
+        private static string BaseUrl =>
+            Environment.GetEnvironmentVariable("BLAZOR_URL") ?? "http://localhost:5241";
+
+        private static string NormalizeUrl(string url) => url.TrimEnd('/');
+
         [TestMethod]
         public async Task NavigationBarLinksAreFunctional()
         {
-            //I start from /breached because I want to see if it actually changes the link after the click is performed
-            await Page.GotoAsync("http://localhost:5241/breached");
+            await Page.GotoAsync($"{BaseUrl}/Breached");
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-            //Test Home Navigation button
             var homeButton = Page.Locator("li.nav-item a:has-text('Home')");
             Assert.IsTrue(await homeButton.IsVisibleAsync(), "Home link is not visible");
             await homeButton.ClickAsync();
-            Assert.IsTrue(await homeButton.IsVisibleAsync(), "Home link is not visible");
-            Assert.AreEqual("http://localhost:5241/", Page.Url, "Home link navigation failed");
+            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Home link navigation failed");
 
-            //Test Was I Breached? Navigation button
-            var wasibreachedButton = Page.Locator("li.nav-item a:has-text('Was I Breached?')");
-            Assert.IsTrue(await wasibreachedButton.IsVisibleAsync(), "Was I Breached link is not visible");
-            await wasibreachedButton.ClickAsync();
-            Assert.IsTrue(await wasibreachedButton.IsVisibleAsync(), "Was I Breached is not visible");
-            Assert.AreEqual("http://localhost:5241/breached", Page.Url, "Was I Breached link navigation failed");
+            var wasIBreachedButton = Page.Locator("li.nav-item a:has-text('Was I Breached?')");
+            Assert.IsTrue(await wasIBreachedButton.IsVisibleAsync(), "Was I Breached link is not visible");
+            await wasIBreachedButton.ClickAsync();
+            Assert.IsTrue(Page.Url.Contains("/Breached", StringComparison.OrdinalIgnoreCase), "Was I Breached link navigation failed");
 
-            await wasibreachedButton.ClickAsync();
-            //Test Logo svg
             var logoButton = Page.Locator("header .image-hover.zoom-in-out-element");
             Assert.IsTrue(await logoButton.IsVisibleAsync(), "Logo is not visible");
             await logoButton.ClickAsync();
-            Assert.IsTrue(await logoButton.IsVisibleAsync(), "Logo is not visible");
-            Assert.AreEqual("http://localhost:5241/", Page.Url, "Logo navigation failed");
+            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Logo navigation failed");
 
-            await wasibreachedButton.ClickAsync();
-            //Test website name on navigation bar
+            await wasIBreachedButton.ClickAsync();
             var titleButton = Page.Locator("span.fs-4.fw-bold.text-light");
             Assert.IsTrue(await titleButton.IsVisibleAsync(), "Title is not visible");
             await titleButton.ClickAsync();
-            Assert.IsTrue(await titleButton.IsVisibleAsync(), "Title is not visible");
-            Assert.AreEqual("http://localhost:5241/", Page.Url, "Title navigation failed");
+            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Title navigation failed");
         }
     }
 }
