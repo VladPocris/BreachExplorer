@@ -5,6 +5,7 @@
 @inject IAppConfigService AppConfigService
 @using BreachExplorer.Components
 @using BreachExplorer.Models
+@using BreachExplorer.Constants
 
 <div class="breached-page">
     <div class="breached-page__hero text-center">
@@ -46,10 +47,21 @@
     {
         <div class="breached-page__status">
             <div class="alert-glass danger breached-page__alert" role="alert">
-                <h3 class="breached-page__alert-title">
-                    <i class="bi bi-exclamation-octagon me-2"></i>Error
-                </h3>
-                <p class="mb-3">@errorMessage</p>
+                @if (showServiceWakeupMessage)
+                {
+                    <h3 class="breached-page__alert-title">
+                        <i class="bi bi-hourglass-split me-2"></i>@ServiceMessages.BackendUnavailableTitle
+                    </h3>
+                    <p class="breached-page__alert-lead">@ServiceMessages.BackendUnavailableLead</p>
+                    <p class="breached-page__alert-detail text-muted mb-3">@ServiceMessages.BackendUnavailableDetail</p>
+                }
+                else
+                {
+                    <h3 class="breached-page__alert-title">
+                        <i class="bi bi-exclamation-octagon me-2"></i>Error
+                    </h3>
+                    <p class="mb-3">@errorMessage</p>
+                }
                 <button class="btn btn-glass-secondary" @onclick="ResetSearch">Try Again</button>
             </div>
         </div>
@@ -96,6 +108,7 @@
 
 @code {
     private string errorMessage = string.Empty;
+    private bool showServiceWakeupMessage;
     private bool success = true;
     private bool isLoading;
     private bool hasSearched;
@@ -115,6 +128,7 @@
     {
         success = true;
         hasSearched = false;
+        showServiceWakeupMessage = false;
         errorMessage = string.Empty;
         breaches.Clear();
     }
@@ -125,6 +139,7 @@
         {
             isLoading = true;
             success = true;
+            showServiceWakeupMessage = false;
             errorMessage = string.Empty;
             hasSearched = false;
             breaches.Clear();
@@ -164,14 +179,16 @@
             if (!response.IsSuccessStatusCode)
             {
                 success = false;
-                errorMessage = response.StatusCode switch
-                {
-                    System.Net.HttpStatusCode.BadRequest => "Invalid email format.",
-                    System.Net.HttpStatusCode.Unauthorized => "API key invalid or expired.",
-                    System.Net.HttpStatusCode.Forbidden => "Breach API access is currently restricted.",
-                    System.Net.HttpStatusCode.BadGateway => "Could not reach LeakCheck. Please try again later.",
-                    _ => $"Error (status {(int)response.StatusCode}). Please try again."
-                };
+                showServiceWakeupMessage = IsLikelyBackendSleeping(response.StatusCode);
+                errorMessage = showServiceWakeupMessage
+                    ? string.Empty
+                    : response.StatusCode switch
+                    {
+                        System.Net.HttpStatusCode.BadRequest => "Invalid email format.",
+                        System.Net.HttpStatusCode.Unauthorized => "API key invalid or expired.",
+                        System.Net.HttpStatusCode.Forbidden => "Breach API access is currently restricted.",
+                        _ => $"Error (status {(int)response.StatusCode}). Please try again."
+                    };
                 hasSearched = true;
                 return;
             }
@@ -185,13 +202,15 @@
         catch (TaskCanceledException)
         {
             success = false;
-            errorMessage = "The check took too long. Try again or use a different email.";
+            showServiceWakeupMessage = true;
+            errorMessage = string.Empty;
             hasSearched = true;
         }
         catch (HttpRequestException)
         {
             success = false;
-            errorMessage = "Unable to reach the API. Check your connection and backend URL.";
+            showServiceWakeupMessage = true;
+            errorMessage = string.Empty;
             hasSearched = true;
         }
         catch (Exception)
@@ -212,4 +231,10 @@
         var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
         return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
     }
+
+    private static bool IsLikelyBackendSleeping(System.Net.HttpStatusCode statusCode) =>
+        statusCode is System.Net.HttpStatusCode.BadGateway
+            or System.Net.HttpStatusCode.ServiceUnavailable
+            or System.Net.HttpStatusCode.GatewayTimeout
+            or System.Net.HttpStatusCode.RequestTimeout;
 }

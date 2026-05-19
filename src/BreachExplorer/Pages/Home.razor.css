@@ -206,6 +206,33 @@
         min-height: calc(100vh - 12rem);
     }
 
+    .service-error-card {
+        max-width: 36rem;
+        width: 100%;
+        padding: 2rem 1.75rem;
+        text-align: center;
+    }
+
+    .service-error-card__title {
+        color: var(--accent-secondary);
+        margin-bottom: 1rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .service-error-card__lead {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+
+    .service-error-card__detail {
+        font-size: 0.95rem;
+        line-height: 1.55;
+        margin-bottom: 1.5rem;
+    }
+
     .loading-card,
     .error-card,
     .panel-card {

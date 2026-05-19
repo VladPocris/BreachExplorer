@@ -5,6 +5,7 @@
 @inject IAppConfigService AppConfigService
 @using BreachExplorer.Components
 @using BreachExplorer.Helpers
+@using BreachExplorer.Constants
 
 <div class="home-page">
     @if (!dataLoaded)
@@ -215,13 +216,14 @@
     else
     {
         <div class="d-flex justify-content-center align-items-center error-stage">
-            <div class="alert-glass danger error-card" style="max-width: 600px; padding: 40px;">
-                <h3 style="color: #ff006e; margin-bottom: 15px;">
-                    <i class="bi bi-exclamation-circle me-2"></i>Unable to Load Data
+            <div class="alert-glass danger error-card service-error-card">
+                <h3 class="service-error-card__title">
+                    <i class="bi bi-hourglass-split me-2"></i>@ServiceMessages.BackendUnavailableTitle
                 </h3>
-                <p class="mb-3">@errormessage</p>
+                <p class="service-error-card__lead">@ServiceMessages.BackendUnavailableLead</p>
+                <p class="service-error-card__detail text-muted">@ServiceMessages.BackendUnavailableDetail</p>
                 <button class="btn btn-glass-secondary" @onclick="async () => await ReloadDataAsync()">
-                    <i class="bi bi-redo me-2"></i>Retry
+                    <i class="bi bi-arrow-clockwise me-2"></i>Retry
                 </button>
             </div>
         </div>
