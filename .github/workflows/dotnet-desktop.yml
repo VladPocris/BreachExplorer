@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,24 +35,29 @@ jobs:
         run: dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
 
       - name: Run tests (if present)
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
         continue-on-error: true
 
       - name: Clean docs folder
-        run: rm -rf ${{ env.PUBLISH_DIR }} && mkdir -p ${{ env.PUBLISH_DIR }}
+        run: rm -rf docs && mkdir docs
 
-      - name: Publish Blazor WASM to docs
-        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o ${{ env.PUBLISH_DIR }} --no-build
+      - name: Publish Blazor WASM
+        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o docs --no-build
 
-      - name: Add GitHub Pages fallback (optional SPA fix)
+      # IMPORTANT: move actual static site to /docs root
+      - name: Move wwwroot contents
         run: |
-          cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html || true
+          cp -r docs/wwwroot/* docs/
+          rm -rf docs/wwwroot
+
+      - name: Add GitHub Pages SPA fallback
+        run: cp docs/index.html docs/404.html || true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: breach-explorer-web
-          path: ${{ env.PUBLISH_DIR }}
+          path: docs
 
       - name: Commit docs to repo
         run: |
@@ -58,4 +66,5 @@ jobs:
 
           git add docs
           git commit -m "Update docs build [skip ci]" || echo "No changes to commit"
+
           git push
