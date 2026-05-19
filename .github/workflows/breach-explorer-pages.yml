@@ -110,16 +110,19 @@ jobs:
           dotnet restore ${{ env.PROJECT_PATH }}
           dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish -p:BaseHref=/BreachExplorer/
 
-      - name: Verify published env.json
+      - name: Write env.json into publish output
         run: |
-          test -f publish/env.json
-          grep -q "$URL_BACKEND_API" publish/env.json
+          # Blazor publish may omit env.json; always place it at the site root for GitHub Pages.
+          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > publish/env.json
+          if [ -d publish/wwwroot ]; then
+            printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > publish/wwwroot/env.json
+          fi
+          echo "Published env.json:"
+          cat publish/env.json
           if grep -q 'localhost' publish/env.json; then
-            echo "::error::publish/env.json still contains localhost"
-            cat publish/env.json
+            echo "::error::publish/env.json must not contain localhost"
             exit 1
           fi
-          cat publish/env.json
 
       - name: Prepare GitHub Pages artifact
         run: |

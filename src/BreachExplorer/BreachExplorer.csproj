@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <None Include="wwwroot\js\Home.js" />
+    <Content Update="wwwroot\env.json" CopyToPublishDirectory="Always" />
+    <Content Update="wwwroot\env.example.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>
