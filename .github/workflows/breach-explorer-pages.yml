@@ -38,8 +38,11 @@ jobs:
 
       - name: Configure test env.json
         run: |
-          API_URL="${URL_BACKEND_API:-https://breachexplorer.onrender.com}"
-          printf '%s\n' "{\"URL_BACKEND_API\":\"${API_URL}\"}" > src/BreachExplorer/wwwroot/env.json
+          if [ -z "$URL_BACKEND_API" ]; then
+            echo "::error::Set repository secret URL_BACKEND_API"
+            exit 1
+          fi
+          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > src/BreachExplorer/wwwroot/env.json
 
       - name: Build Blazor and tests
         run: |
@@ -89,22 +92,29 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore and build
+      - name: Write production env.json (before publish)
         run: |
-          dotnet restore ${{ env.PROJECT_PATH }}
-          dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
+          if [ -z "$URL_BACKEND_API" ]; then
+            echo "::error::Set repository secret URL_BACKEND_API"
+            exit 1
+          fi
+          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > src/BreachExplorer/wwwroot/env.json
+          cat src/BreachExplorer/wwwroot/env.json
 
       - name: Publish Blazor WASM
         run: |
-          dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish --no-build -p:BaseHref=/BreachExplorer/
+          dotnet restore ${{ env.PROJECT_PATH }}
+          dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish -p:BaseHref=/BreachExplorer/
 
-      - name: Write production env.json
+      - name: Verify published env.json
         run: |
-          if [ -z "$URL_BACKEND_API" ]; then
-            echo "::error::Set repository secret URL_BACKEND_API (e.g. https://breachexplorer.onrender.com)"
+          test -f publish/env.json
+          grep -q "$URL_BACKEND_API" publish/env.json
+          if grep -q 'localhost' publish/env.json; then
+            echo "::error::publish/env.json still contains localhost"
+            cat publish/env.json
             exit 1
           fi
-          printf '%s\n' "{\"URL_BACKEND_API\":\"${URL_BACKEND_API}\"}" > publish/env.json
           cat publish/env.json
 
       - name: Prepare GitHub Pages artifact

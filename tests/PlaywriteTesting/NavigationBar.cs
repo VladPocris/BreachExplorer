@@ -16,26 +16,26 @@ namespace PlaywriteTesting
             await Page.GotoAsync($"{BaseUrl}/Breached");
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-            var homeButton = Page.Locator("li.nav-item a:has-text('Home')");
+            var homeButton = Page.Locator("li.nav-item a.nav-pill:has-text('Home')");
             Assert.IsTrue(await homeButton.IsVisibleAsync(), "Home link is not visible");
             await homeButton.ClickAsync();
             Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Home link navigation failed");
 
-            var wasIBreachedButton = Page.Locator("li.nav-item a:has-text('Was I Breached?')");
+            var wasIBreachedButton = Page.Locator("li.nav-item a.nav-pill:has-text('Was I Breached?')");
             Assert.IsTrue(await wasIBreachedButton.IsVisibleAsync(), "Was I Breached link is not visible");
             await wasIBreachedButton.ClickAsync();
             Assert.IsTrue(Page.Url.Contains("/Breached", StringComparison.OrdinalIgnoreCase), "Was I Breached link navigation failed");
 
-            var logoButton = Page.Locator("header .image-hover.zoom-in-out-element");
-            Assert.IsTrue(await logoButton.IsVisibleAsync(), "Logo is not visible");
-            await logoButton.ClickAsync();
-            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Logo navigation failed");
+            var brandLink = Page.Locator("a.navbar-brand.nav-brand");
+            Assert.IsTrue(await brandLink.IsVisibleAsync(), "Brand link is not visible");
+            await brandLink.ClickAsync();
+            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Brand link navigation failed");
 
             await wasIBreachedButton.ClickAsync();
-            var titleButton = Page.Locator("span.fs-4.fw-bold.text-light");
-            Assert.IsTrue(await titleButton.IsVisibleAsync(), "Title is not visible");
-            await titleButton.ClickAsync();
-            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Title navigation failed");
+            var titleText = Page.Locator("span.nav-brand-text");
+            Assert.IsTrue(await titleText.IsVisibleAsync(), "Brand title is not visible");
+            await titleText.ClickAsync();
+            Assert.AreEqual(NormalizeUrl(BaseUrl), NormalizeUrl(Page.Url), "Brand title navigation failed");
         }
     }
 }
