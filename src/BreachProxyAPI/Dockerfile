@@ -2,20 +2,17 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 
-# Copy csproj first
-COPY src/BreachProxyAPI/BreachProxyAPI.csproj src/BreachProxyAPI/
+# Copy csproj
+COPY BreachProxyAPI.csproj ./
 
 # Restore
-RUN dotnet restore src/BreachProxyAPI/BreachProxyAPI.csproj
+RUN dotnet restore
 
-# Copy everything else
+# Copy remaining files
 COPY . .
 
 # Publish
-RUN dotnet publish src/BreachProxyAPI/BreachProxyAPI.csproj \
-    -c Release \
-    -o /app/publish \
-    --no-restore
+RUN dotnet publish -c Release -o /app/publish --no-restore
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
