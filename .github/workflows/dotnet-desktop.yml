@@ -12,7 +12,7 @@ jobs:
 
     env:
       PROJECT_PATH: src/BreachExplorer/BreachExplorer.csproj
-      PUBLISH_DIR: publish
+      PUBLISH_DIR: /docs
 
     steps:
       - name: Checkout
@@ -35,8 +35,15 @@ jobs:
         run: dotnet test --no-build --verbosity normal
         continue-on-error: true
 
-      - name: Publish Blazor WASM
+      - name: Clean docs folder
+        run: rm -rf ${{ env.PUBLISH_DIR }} && mkdir -p ${{ env.PUBLISH_DIR }}
+
+      - name: Publish Blazor WASM to docs
         run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o ${{ env.PUBLISH_DIR }} --no-build
+
+      - name: Add GitHub Pages fallback (optional SPA fix)
+        run: |
+          cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html || true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
