@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "BreachExplorer",
   "resources": {
-    "hash": "sha256-6HgnZKC/jKmfWszoJjWGRkRJR0QTOP0bAsByYsK6Gck=",
+    "hash": "sha256-lFoSVkbYM+PufRfbs8RXLf/fWy+oOUGluLNOIesoJVY=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-sn/g61GjVPhViOYQDkq1OMlk0eyS9r2Hi0qgU2o0HIU="
     },
@@ -19,7 +19,7 @@
     "coreAssembly": {},
     "assembly": {
       "BlazorBootstrap.wasm": "sha256-oXgPBxQIMTQHVXUTwY/QUe7+g4uUxfm/kdDCUXRqxZ4=",
-      "BreachExplorer.wasm": "sha256-gUxnBF/9gn0w+xWC2DYXba4CfcBd8lNbYsVDJf2UEhY=",
+      "BreachExplorer.wasm": "sha256-3mIzMrVo+JKASuRJD9jHNnHK/NNRaTs7qDaMFWfRqEY=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-KyloQ0F/6fhiWptdkeaLEqX2v78nAQZ/yl3uVzZ3AG8=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-xN5YQTykERIwFao7tICz9ZIbAWzog2bDo3ByCdh5Fq4=",
       "Microsoft.AspNetCore.Components.WebAssembly.wasm": "sha256-9ZJuwDJa5A30IyvMcy0UKCIxI2OjjebYA64xvPi2A1w=",
