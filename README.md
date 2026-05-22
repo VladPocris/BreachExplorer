@@ -134,7 +134,7 @@ Playwright tests cover navigation, breach lookup UI, and password generation flo
 
 ## License
 
-See repository license file if present; otherwise treat as personal/portfolio project.
+This project is open source.
 
 ---
 
